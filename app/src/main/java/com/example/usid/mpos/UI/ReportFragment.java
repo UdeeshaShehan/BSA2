@@ -1,7 +1,9 @@
 package com.example.usid.mpos.UI;
 
 import android.app.DatePickerDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,13 @@ import com.example.usid.mpos.domain.sales.Sale;
 import com.example.usid.mpos.domain.sales.SaleLedger;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -39,6 +48,7 @@ public class ReportFragment extends UpdatableFragment {
 	private TextView currentBox;
 	private Calendar currentTime;
 	private DatePickerDialog datePicker;
+	private final int SERVER_PORT = 8080;
 	
 	public static final int DAILY = 0;
 	public static final int WEEKLY = 1;
@@ -133,7 +143,36 @@ public class ReportFragment extends UpdatableFragment {
 		});*//*
 		
 */	}
-	
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					//Create a server socket object and bind it to a port
+					ServerSocket socServer = new ServerSocket(SERVER_PORT);
+					//Create server side client socket reference
+					Socket socClient = null;
+					//Infinite loop will listen for client requests to connect
+					while (true) {
+						//Accept the client connection and hand over communication to server side client socket
+						socClient = socServer.accept();
+						//For each client new instance of AsyncTask will be created
+						ReportFragment.ServerAsyncTask serverAsyncTask = new ReportFragment.ServerAsyncTask();
+						//Start the AsyncTask execution
+						//Accepted client socket object will pass as the parameter
+						serverAsyncTask.execute(new Socket[] {socClient});
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
 	/**
 	 * Show list.
 	 * @param list
@@ -223,5 +262,46 @@ public class ReportFragment extends UpdatableFragment {
 		}
 		update();
 	}
+	class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
+		//Background task which serve for the client
+		@Override
+		protected String doInBackground(Socket... params) {
+			String result = null;
+			//Get the accepted socket object
+			Socket mySocket = params[0];
+			try {
+				//Get the data input stream comming from the client
+				InputStream is = mySocket.getInputStream();
+				//Get the output stream to the client
+				PrintWriter out = new PrintWriter(
+						mySocket.getOutputStream(), true);
+				//Write data to the data output stream
+				out.println("Hello from server \r");
+				//Buffer the data input stream
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(is));
+				//Read the contents of the data buffer
+				result = br.readLine();
+				//Close the client connection
+				mySocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String s) {
+			//After finishing the execution of background task data will be write the text view
+			//tvClientMsg.setText(s);
+			//Toast.makeText(getActivity().getBaseContext(), s, Toast.LENGTH_LONG).show();
+			int i=0;
+			/*if(s.substring(0,2).equals("no"))
+				cardNo.setText(s.substring(5,21));*/
+			//else
+				//setListViewSale(s);
+		}
+	}
+
 
 }

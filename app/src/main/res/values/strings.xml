@@ -26,8 +26,13 @@
     <string name="next">></string>
     <string name="inventory">Inventory</string>
     <string name="sale">Sale</string>
-    <string name="report">Report</string>
+    <string name="payment">Payment</string>
     <string name="search">Search</string>
+    <string name="card_number">Card Number </string>
+    <string name="Expiry">Expiry date </string>
+    <string name="CVV">CVV         </string>
+    <string name="process">Process</string>
+    <string name="card_holder">Card Holder </string>
 
     <string name="dialog_quit">Are you sure you want to QUIT?</string>
     <string name="dialog_remove_product">Are you sure you want to REMOVE this product?</string>

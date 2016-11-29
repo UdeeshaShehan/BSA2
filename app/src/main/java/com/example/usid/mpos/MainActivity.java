@@ -74,7 +74,7 @@ public class MainActivity extends FragmentActivity {
                     .setTabListener(tabListener), 0, false);
             actionBar.addTab(actionBar.newTab().setText(res.getString(R.string.sale))
                     .setTabListener(tabListener), 1, true);
-            actionBar.addTab(actionBar.newTab().setText(res.getString(R.string.report))
+            actionBar.addTab(actionBar.newTab().setText(res.getString(R.string.payment))
                     .setTabListener(tabListener), 2, false);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -303,7 +303,7 @@ class PagerAdapter extends FragmentStatePagerAdapter {
                 reportFragment };
         fragmentNames = new String[] { res.getString(R.string.inventory),
                 res.getString(R.string.sale),
-                res.getString(R.string.report) };
+                res.getString(R.string.payment) };
 
     }
 
