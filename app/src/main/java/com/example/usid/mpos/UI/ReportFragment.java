@@ -411,22 +411,27 @@ public class ReportFragment extends UpdatableFragment {
 		@Override
 		protected void onPostExecute(String result) {
 
-			String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
-			track = track.replace("no, ", "");
+			try {
+				String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+				track = track.replace("no, ", "");
 
-			String [] details = track.split("\\^");
-			details[0] = details[0].replace("%B","");
-			details[1] = details[1].replace("/"," ");
-			details[2] = details[2].substring(0,4);
-			String cardNu = details[0].substring(0,4)+ " **** **** ****";
-			String eYear = details[2].substring(0,2);
-			String eMonth = details[2].substring(2);
+				String [] details = track.split("\\^");
+				details[0] = details[0].replace("%B","");
+				details[1] = details[1].replace("/"," ");
+				details[2] = details[2].substring(0,4);
+				String cardNu = details[0].substring(0,4)+ " **** **** ****";
+				String eYear = details[2].substring(0,2);
+				String eMonth = details[2].substring(2);
 
 
-			cardHolder.setText(details[1]);
+				cardHolder.setText(details[1]);
 
-			expiryDate.setText(eMonth+"/"+eYear);
-			cardNo.setText(cardNu);
+				expiryDate.setText(eMonth+"/"+eYear);
+				cardNo.setText(cardNu);
+			}
+			catch (Exception e){
+
+			}
 
 
 
