@@ -13,7 +13,7 @@
         android:orientation="horizontal" >
 
         <TextView
-            android:id="@+id/card_number"
+            android:id="@+id/card_enumbr"
             style="@style/ButtonText"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -21,7 +21,7 @@
             android:text="@string/card_number" />
 
         <EditText
-            android:id="@+id/Card_nu"
+            android:id="@+id/Card_number"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:ems="10"
@@ -66,6 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:ems="10"
+            android:inputType="number"
             android:hint="@string/CVV" />
     </LinearLayout>
     <LinearLayout
@@ -94,7 +95,7 @@
 
 
     <Button
-        android:id="@+id/addProductButton"
+        android:id="@+id/processPayment"
         style="@style/ButtonText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
