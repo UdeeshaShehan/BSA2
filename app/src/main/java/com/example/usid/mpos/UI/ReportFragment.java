@@ -1,23 +1,33 @@
 package com.example.usid.mpos.UI;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.usid.mpos.R;
 import com.example.usid.mpos.domain.DateTimeStrategy;
 import com.example.usid.mpos.domain.sales.Sale;
 import com.example.usid.mpos.domain.sales.SaleLedger;
+import com.example.usid.mpos.technicalService.Connection;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,10 +36,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.RunnableFuture;
 
 /**
  * UI for showing sale's record.
@@ -49,7 +62,12 @@ public class ReportFragment extends UpdatableFragment {
 	private Calendar currentTime;
 	private DatePickerDialog datePicker;
 	private final int SERVER_PORT = 8080;
-	
+
+	private Button processPayment;
+	private EditText cardNo;
+	private EditText expiryDate;
+	private EditText cardHolder;
+	private EditText CVV;
 	public static final int DAILY = 0;
 	public static final int WEEKLY = 1;
 	public static final int MONTHLY = 2;
@@ -65,7 +83,107 @@ public class ReportFragment extends UpdatableFragment {
 		}
 		
 		View view = inflater.inflate(R.layout.layout_report, container, false);
-		
+		processPayment = (Button) view.findViewById(R.id.processPayment);
+		cardHolder = (EditText) view.findViewById(R.id.card_holder_name);
+		CVV = (EditText) view.findViewById(R.id.CVV_num);
+		expiryDate = (EditText) view.findViewById(R.id.expiry_date);
+		cardNo = (EditText) view.findViewById(R.id.Card_number);
+
+
+		processPayment.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				String cvv = CVV.getText().toString();
+
+				if(CVV.length()<=0){
+					AlertDialog.Builder quitDialog = new AlertDialog.Builder(getActivity());
+					quitDialog.setTitle("Error..!\nEnter all the details!!!!");
+					quitDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+
+						}
+					});
+
+					quitDialog.show();
+
+				}
+
+				else {
+
+
+					AsyncTask at = new AsyncTask() {
+						ProgressDialog progress;
+						String results;
+						@Override
+						protected void onPreExecute() {
+							super.onPreExecute();
+							progress = new ProgressDialog(getActivity());
+							progress.setTitle("Credit Card");
+							progress.setMessage("Processing...");
+							progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+							progress.show();
+// To dismiss the dialog
+
+						}
+
+						@Override
+						protected Object doInBackground(Object[] params) {
+
+
+
+							HashMap<String, String> data = new HashMap<>();
+
+							data.put("name_on_card", "Mohamed Nifras");
+							data.put("amount", "10");
+							data.put("card_type", "visa");
+							data.put("card_number", "4032 0391 0542 2911");
+							data.put("expiry_month", "12");
+							data.put("expiry_year", "2021");
+							data.put("cvv", "123");
+							data.put("orderID", "12324");
+							try {
+								Connection connection = Connection.getInstance();
+								results = connection.post("payment_process.php", data);
+
+								Log.e("Results", results);
+							} catch (URISyntaxException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+
+							return null;
+						}
+
+
+						@Override
+						protected void onPostExecute(Object o) {
+							super.onPostExecute(o);
+							progress.dismiss();
+							JSONObject res = null;
+							try {
+								res = new JSONObject(results);
+								if(res.getString("status").equals("1")){
+									Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+								}
+								else {
+									Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+
+
+						}
+					};
+					//finally execute the task
+					at.execute();
+				}
+			}
+		});
+
 		/*previousButton = (Button) view.findViewById(R.id.previousButton);
 		nextButton = (Button) view.findViewById(R.id.nextButton);
 		currentBox = (TextView) view.findViewById(R.id.currentBox);
@@ -291,7 +409,27 @@ public class ReportFragment extends UpdatableFragment {
 		}
 
 		@Override
-		protected void onPostExecute(String s) {
+		protected void onPostExecute(String result) {
+
+			String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+			track = track.replace("no, ", "");
+
+			String [] details = track.split("\\^");
+			details[0] = details[0].replace("%B","");
+			details[1] = details[1].replace("/"," ");
+			details[2] = details[2].substring(0,4);
+			String cardNu = details[0].substring(0,4)+ " **** **** ****";
+			String eYear = details[2].substring(0,2);
+			String eMonth = details[2].substring(2);
+
+
+			cardHolder.setText(details[1]);
+
+			expiryDate.setText(eMonth+"/"+eYear);
+			cardNo.setText(cardNu);
+
+
+
 			//After finishing the execution of background task data will be write the text view
 			//tvClientMsg.setText(s);
 			//Toast.makeText(getActivity().getBaseContext(), s, Toast.LENGTH_LONG).show();
