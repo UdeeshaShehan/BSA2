@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/swipe"
+        android:title="@string/swipe_card"/>
+
+    <item
+        android:id="@+id/chip"
+        android:title="@string/chip_card"/>
+    <item
+        android:id="@+id/NFC"
+        android:title="@string/NFC"/>
+    <item
+        android:id="@+id/mobile"
+        android:title="@string/mobile_payment"/>
+
+</menu>
