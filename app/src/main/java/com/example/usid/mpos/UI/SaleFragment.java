@@ -57,7 +57,7 @@ public class SaleFragment extends UpdatableFragment {
     private ProductCatalog productCatalog;
 	ListView listView;
 	TextView totaltex,cardNo;
-
+	private Thread thread;
 	/**
 	 * Construct a new SaleFragment.
 	 * @param
@@ -96,6 +96,7 @@ public class SaleFragment extends UpdatableFragment {
 	private final int SERVER_PORT = 8080;
 	String saleBarcode;
 	Button bt;
+	Thread t;
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -114,7 +115,7 @@ public class SaleFragment extends UpdatableFragment {
 		//Call method
 		//getDeviceIpAddress();
 		//New thread to listen to incoming connections
-		new Thread(new Runnable() {
+		thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -137,7 +138,8 @@ public class SaleFragment extends UpdatableFragment {
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		});
+		//thread.start();
 
 		//list=db.getAllProducts();
 		bt.setOnClickListener(new View.OnClickListener(){
@@ -309,9 +311,30 @@ public class SaleFragment extends UpdatableFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+/*		if(!thread.isAlive()) {
+			thread.start();
+		}*/
 	//	update();
 	}
-	
+
+	@Override
+	public void onStop() {
+		super.onStop();
+/*		if(thread!= null) {
+			thread.stop();
+
+		}*/
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		/*if(thread!= null) {
+			thread.stop();
+
+		}*/
+	}
+
 	/**
 	 * Show confirm or clear dialog.
 	 */

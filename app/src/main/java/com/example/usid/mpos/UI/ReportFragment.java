@@ -61,12 +61,13 @@ public class ReportFragment extends UpdatableFragment {
 	private Calendar currentTime;
 	private DatePickerDialog datePicker;
 	private final int SERVER_PORT = 8080;
-
+	private Thread thread;
 	private Button processPayment;
 	private EditText cardNo;
 	private EditText expiryDate;
 	private EditText cardHolder;
 	private EditText CVV;
+	private EditText Amount;
 	public static final int DAILY = 0;
 	public static final int WEEKLY = 1;
 	public static final int MONTHLY = 2;
@@ -87,14 +88,15 @@ public class ReportFragment extends UpdatableFragment {
 		CVV = (EditText) view.findViewById(R.id.CVV_num);
 		expiryDate = (EditText) view.findViewById(R.id.expiry_date);
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
-
+		Amount = (EditText) view.findViewById(R.id.amount_id);
 
 		processPayment.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				String cvv = CVV.getText().toString();
+				final String amount = Amount.getText().toString();
 
-				if(CVV.length()<=0){
+				if(CVV.length()<=0 || amount.length() <=0){
 					AlertDialog.Builder quitDialog = new AlertDialog.Builder(getActivity());
 					quitDialog.setTitle("Error..!\nEnter all the details!!!!");
 					quitDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
@@ -134,7 +136,7 @@ public class ReportFragment extends UpdatableFragment {
 							HashMap<String, String> data = new HashMap<>();
 
 							data.put("name_on_card", "Mohamed Nifras");
-							data.put("amount", "10");
+							data.put("amount", amount);
 							data.put("card_type", "visa");
 							data.put("card_number", "4032 0391 0542 2911");
 							data.put("expiry_month", "12");
@@ -264,7 +266,7 @@ public class ReportFragment extends UpdatableFragment {
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		new Thread(new Runnable() {
+		thread =new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -287,7 +289,8 @@ public class ReportFragment extends UpdatableFragment {
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		});
+		thread.start();
 	}
 
 	/**
@@ -353,13 +356,32 @@ public class ReportFragment extends UpdatableFragment {
 		totalBox.setText(total + "");
 		showList(list);
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		// update();
-		// it shouldn't call update() anymore. Because super.onResume() 
-		// already fired the action of spinner.onItemSelected()
+/*		if(!thread.isAlive()) {
+			thread.start();
+		}*/
+		//	update();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		/*if(thread!= null) {
+			thread.stop();
+
+		}*/
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+/*		if(thread!= null) {
+			thread.stop();
+
+		}*/
 	}
 	
 	/**
@@ -380,6 +402,7 @@ public class ReportFragment extends UpdatableFragment {
 		update();
 	}
 	class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
+
 		//Background task which serve for the client
 		@Override
 		protected String doInBackground(Socket... params) {
@@ -399,6 +422,7 @@ public class ReportFragment extends UpdatableFragment {
 						new InputStreamReader(is));
 				//Read the contents of the data buffer
 				result = br.readLine();
+				Log.e("Result", result);
 				//Close the client connection
 				mySocket.close();
 			} catch (IOException e) {
@@ -412,7 +436,8 @@ public class ReportFragment extends UpdatableFragment {
 
 			try {
 				String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
-				track = track.replace("no, ", "");
+				track = track.replaceAll("no", "");
+				track = track.replaceAll("\\,","");
 
 				String [] details = track.split("\\^");
 				details[0] = details[0].replace("%B","");
