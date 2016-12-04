@@ -10,7 +10,7 @@
         android:id="@+id/mobileNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/barcode"
+        android:text="@string/mobilePaymentId"
         android:textSize="20sp" />
 
     <EditText
@@ -18,13 +18,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="20"
-        android:inputType="number"
         android:textSize="18sp" />
     <TextView
         android:id="@+id/Id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/name"
+        android:text="@string/pinNum"
         android:textSize="20sp" />
 
     <EditText
@@ -32,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="20"
-        android:inputType="text"
+        android:inputType="number"
         android:textSize="18sp" />
 
 

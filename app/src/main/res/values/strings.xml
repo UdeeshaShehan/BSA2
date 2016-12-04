@@ -35,6 +35,8 @@
     <string name="card_holder">Card Holder </string>
     <string name="mobileNum">Mobile Number </string>
     <string name="idmobile">Payment Id</string>
+    <string name="mobilePaymentId">Mobile Payment Id</string>
+    <string name="pinNum">Pin number</string>
 
     <string name="dialog_quit">Are you sure you want to QUIT?</string>
     <string name="dialog_remove_product">Are you sure you want to REMOVE this product?</string>

@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.usid.mpos.UI.InventoryFragment;
+import com.example.usid.mpos.UI.MobilePaymentDialogFragment;
 import com.example.usid.mpos.UI.ProductDetailActivity;
 import com.example.usid.mpos.UI.ReportFragment;
 import com.example.usid.mpos.UI.SaleFragment;
@@ -250,7 +251,14 @@ public class MainActivity extends FragmentActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+ /*   public void showPopup() {
+        MobilePaymentDialogFragment newFragment = new MobilePaymentDialogFragment();
+        newFragment.show(getFragmentManager(), "");
+    }*/
     public void mobilepayment(){
+      //  showPopup();
+        MobilePaymentDialogFragment newFragment = new MobilePaymentDialogFragment();
+        newFragment.show(getSupportFragmentManager(), "");
 
     }
     public void nfcpayment(){

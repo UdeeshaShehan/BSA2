@@ -192,7 +192,7 @@ public class ReportFragment extends UpdatableFragment {
 		totalBox = (TextView) view.findViewById(R.id.totalBox);
 		spinner = (Spinner) view.findViewById(R.id.spinner1);*/
 		
-		//initUI();
+		initUI();
 		return view;
 	}
 
