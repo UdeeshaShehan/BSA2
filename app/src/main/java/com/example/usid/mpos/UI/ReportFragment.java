@@ -3,7 +3,11 @@ package com.example.usid.mpos.UI;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,12 +23,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.usid.mpos.MainActivity;
 import com.example.usid.mpos.R;
 import com.example.usid.mpos.domain.DateTimeStrategy;
 import com.example.usid.mpos.domain.sales.Sale;
 import com.example.usid.mpos.domain.sales.SaleLedger;
 import com.example.usid.mpos.technicalService.Connection;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
+import com.example.usid.mpos.technicalService.PriceCommunicator;
+import com.example.usid.mpos.technicalService.SocketService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +55,7 @@ import java.util.Map;
  * @author Refresh Team
  *
  */
-public class ReportFragment extends UpdatableFragment {
+public class ReportFragment extends UpdatableFragment implements PriceCommunicator{
 	
 	private SaleLedger saleLedger;
 	List<Map<String, String>> saleList;
@@ -72,6 +79,8 @@ public class ReportFragment extends UpdatableFragment {
 	public static final int WEEKLY = 1;
 	public static final int MONTHLY = 2;
 	public static final int YEARLY = 3;
+	BroadcastReceiver receiverr;
+	Intent serviceIntentr;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -193,6 +202,33 @@ public class ReportFragment extends UpdatableFragment {
 		spinner = (Spinner) view.findViewById(R.id.spinner1);*/
 		
 		initUI();
+		receiverr = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+
+				String result = intent.getStringExtra("result");
+				if(!result.substring(0,2).equals("ba")) {
+					String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+					track = track.replaceAll("no", "");
+					track = track.replaceAll("\\,", "");
+
+					String[] details = track.split("\\^");
+					details[0] = details[0].replace("%B", "");
+					details[1] = details[1].replace("/", " ");
+					details[2] = details[2].substring(0, 4);
+					String cardNu = details[0].substring(0, 4) + " **** **** ****";
+					String eYear = details[2].substring(0, 2);
+					String eMonth = details[2].substring(2);
+
+
+					cardHolder.setText(details[1]);
+
+					expiryDate.setText(eMonth + "/" + eYear);
+					cardNo.setText(cardNu);
+				}
+
+			}
+		};
 		return view;
 	}
 
@@ -264,6 +300,14 @@ public class ReportFragment extends UpdatableFragment {
 */	}
 
 	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		context = getActivity();
+
+		((MainActivity)context).fragPrice = this;
+	}
+
+	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		thread =new Thread(new Runnable() {
@@ -290,7 +334,7 @@ public class ReportFragment extends UpdatableFragment {
 				}
 			}
 		});
-		thread.start();
+		//thread.start();
 	}
 
 	/**
@@ -360,6 +404,12 @@ public class ReportFragment extends UpdatableFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		serviceIntentr = new Intent(getActivity().getApplicationContext(),
+				SocketService.class);
+		getActivity().startService(serviceIntentr);
+
+		getActivity().registerReceiver(receiverr, new IntentFilter(
+				SocketService.BROADCAST_ACTION));
 /*		if(!thread.isAlive()) {
 			thread.start();
 		}*/
@@ -369,6 +419,7 @@ public class ReportFragment extends UpdatableFragment {
 	@Override
 	public void onStop() {
 		super.onStop();
+
 		/*if(thread!= null) {
 			thread.stop();
 
@@ -378,6 +429,8 @@ public class ReportFragment extends UpdatableFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		getActivity().stopService(serviceIntentr);
+		getActivity().unregisterReceiver(receiverr);
 /*		if(thread!= null) {
 			thread.stop();
 
@@ -401,6 +454,12 @@ public class ReportFragment extends UpdatableFragment {
 		}
 		update();
 	}
+
+	@Override
+	public void getPrice(String price) {
+		Amount.setText(price);
+	}
+
 	class ServerAsyncTask extends AsyncTask<Socket, Void, String> {
 
 		//Background task which serve for the client

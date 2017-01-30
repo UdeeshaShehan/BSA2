@@ -29,7 +29,14 @@
         <activity
             android:name="com.example.usid.mpos.UI.ProductDetailActivity"
             android:screenOrientation="portrait" />
-
+        <service
+            android:name=".technicalService.SocketService"
+            android:enabled="true" >
+        </service>
+        <service
+            android:name=".technicalService.UDPBroadcastSerrvice"
+            android:enabled="true" >
+        </service>
 
     </application>
 

@@ -117,10 +117,6 @@
             />
     </LinearLayout>
 
-
-
-
-
     <Button
         android:id="@+id/processPayment"
         style="@style/ButtonText"

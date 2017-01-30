@@ -20,6 +20,7 @@ public class Product {
 	 * Static value for UNDEFINED ID.
 	 */
 	public static final int UNDEFINED_ID = -1;
+	public static int new_ID =0;
 
 	/**
 	 * Constructs a new Product.
@@ -42,7 +43,8 @@ public class Product {
 	 * @param salePrice price for using when doing sale.
 	 */
 	public Product(String name, String barcode, double salePrice) {
-		this(UNDEFINED_ID, name, barcode, salePrice);
+		this(new_ID, name, barcode, salePrice);
+		new_ID++;
 	}
 
 	/**

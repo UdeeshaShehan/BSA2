@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/BSA2.iml" filepath="$PROJECT_DIR$/BSA2.iml" />
       <module fileurl="file://$PROJECT_DIR$/PosLanka.iml" filepath="$PROJECT_DIR$/PosLanka.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/mPOS2.iml" filepath="$PROJECT_DIR$/mPOS2.iml" />

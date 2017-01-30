@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * DAO used by android for Sale process.
  * 
- * @author Refresh Team
+ * @author
  *
  */
 public class SaleDaoAndroid implements SaleDao {

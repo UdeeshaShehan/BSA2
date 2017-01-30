@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * DAO used by android for Inventory.
  * 
- * @author Refresh Team
+ * @author
  *
  */
 public class InventoryDaoAndroid implements InventoryDao {

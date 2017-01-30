@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * DAO for Sale process.
  * 
- * @author Refresh Team
+ * @author
  *
  */
 public interface SaleDao {

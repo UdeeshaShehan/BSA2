@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_sale"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/cart"
@@ -146,7 +147,7 @@
             android:layout_weight="0.5"
             android:background="@drawable/btn_red"
             android:text="@string/clear" />
-<!--
+
         <Button
             android:id="@+id/endButton"
             style="@style/ButtonText"
@@ -154,7 +155,15 @@
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:background="@drawable/btn_green"
-            android:text="@string/confirm" />-->
+            android:text="@string/confirm" />
+        <Button
+            android:id="@+id/addButton"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_purple"
+            android:text="@string/add" />
     </LinearLayout>
 
 </LinearLayout>

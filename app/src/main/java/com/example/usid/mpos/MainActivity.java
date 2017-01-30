@@ -4,8 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -33,11 +37,24 @@ import com.example.usid.mpos.domain.LanguageController;
 import com.example.usid.mpos.domain.inventory.Inventory;
 import com.example.usid.mpos.domain.inventory.Product;
 import com.example.usid.mpos.domain.inventory.ProductCatalog;
+import com.example.usid.mpos.technicalService.Communicator;
+import com.example.usid.mpos.technicalService.FragmentCommunicator;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
+import com.example.usid.mpos.technicalService.PriceCommunicator;
+import com.example.usid.mpos.technicalService.SocketService;
+import com.example.usid.mpos.technicalService.UDPBroadcastSerrvice;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends FragmentActivity {
+import static com.example.usid.mpos.UI.AddProductDialogFragment.PREFS_TAG;
+import static com.example.usid.mpos.UI.AddProductDialogFragment.PRODUCT_TAG;
+
+public class MainActivity extends FragmentActivity implements Communicator{
 
     private ViewPager viewPager;
     private ProductCatalog productCatalog;
@@ -46,6 +63,32 @@ public class MainActivity extends FragmentActivity {
     private static boolean SDK_SUPPORTED;
     private PagerAdapter pagerAdapter;
     private Resources res;
+    BroadcastReceiver receiver;
+    Intent serviceIntent;
+    public FragmentCommunicator fragCom;
+    public PriceCommunicator fragPrice;
+    public static List<Product> plist;
+    public  List<Product> getDataFromSharedPreferences(){
+        Gson gson = new Gson();
+        List<Product> productFromShared = new ArrayList<>();
+        SharedPreferences sharedPref =getApplicationContext().getSharedPreferences(PREFS_TAG, Context.MODE_PRIVATE);
+        String jsonPreferences = sharedPref.getString(PRODUCT_TAG, "");
+
+        Type type = new TypeToken<List<Product>>() {}.getType();
+        productFromShared = gson.fromJson(jsonPreferences, type);
+
+        return productFromShared;
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        serviceIntent = new Intent(getApplicationContext(),
+                SocketService.class);
+        startService(serviceIntent);
+
+        registerReceiver(receiver, new IntentFilter(
+                SocketService.BROADCAST_ACTION));
+    }
 
     @SuppressLint("NewApi")
     /**
@@ -91,9 +134,12 @@ public class MainActivity extends FragmentActivity {
         res = getResources();
         setContentView(R.layout.activity_main);
         viewPager = (ViewPager) findViewById(R.id.pager);
+        plist=new ArrayList<Product>();
+        plist=getDataFromSharedPreferences();
         super.onCreate(savedInstanceState);
         SDK_SUPPORTED = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         initiateActionBar();
+        startService(new Intent(this, UDPBroadcastSerrvice.class));
         FragmentManager fragmentManager = getSupportFragmentManager();
         pagerAdapter = new PagerAdapter(fragmentManager, res);
         viewPager.setAdapter(pagerAdapter);
@@ -106,6 +152,18 @@ public class MainActivity extends FragmentActivity {
                     }
                 });
         viewPager.setCurrentItem(1);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            stopService(serviceIntent);
+            unregisterReceiver(receiver);
+            stopService(new Intent(this, UDPBroadcastSerrvice.class));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -138,6 +196,9 @@ public class MainActivity extends FragmentActivity {
             }
         });
         quitDialog.show();
+    }
+    public void saleoptionOnClickHandler(View view){
+
     }
 
     /**
@@ -286,6 +347,16 @@ public class MainActivity extends FragmentActivity {
         Intent intent = getIntent();
         finish();
         startActivity(intent);
+    }
+
+    @Override
+    public void respond(String name, String barcode, String price) {
+       fragCom.passDataToActivity(name,barcode,price);
+    }
+
+    @Override
+    public void sendPrice(String price) {
+       fragPrice.getPrice(price);
     }
 }
 class PagerAdapter extends FragmentStatePagerAdapter {

@@ -20,19 +20,20 @@ import java.net.Socket;
  */
 
 public class SocketService extends Service{
-    private String LOG_TAG = null;
-
+    private static String LOG_TAG = "BroadcastService";
+    public static final String BROADCAST_ACTION = "com.websmithing.broadcasttest.displayevent";
+    Intent intent1;
 
     @Override
     public void onCreate() {
         super.onCreate();
         LOG_TAG = this.getClass().getSimpleName();
         Log.i(LOG_TAG, "In onCreate");
-
+        intent1 = new Intent(BROADCAST_ACTION);
     }
     private final int SERVER_PORT = 8080;
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public synchronized int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(LOG_TAG, "In onStartCommand");
 
         new Thread(new Runnable() {
@@ -66,6 +67,8 @@ public class SocketService extends Service{
                                     new InputStreamReader(is));
                             //Read the contents of the data buffer
                             result = br.readLine();
+                            intent1.putExtra("result", result);
+                            sendBroadcast(intent1);
                             Log.e("Result", result);
                             //Close the client connection
                             mySocket.close();
@@ -98,4 +101,5 @@ public class SocketService extends Service{
     public void onDestroy() {
         super.onDestroy();
         Log.i(LOG_TAG, "In onDestroy");
-    }}
+    }
+}

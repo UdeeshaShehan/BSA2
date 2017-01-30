@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -101,7 +102,12 @@ public class ProductDetailActivity extends Activity {
 		}
 
 		id = getIntent().getStringExtra("id");
-		product = productCatalog.getProductById(Integer.parseInt(id));
+		try {
+			product = productCatalog.getProductById(Integer.parseInt(id));
+		}catch (NullPointerException e){
+			e.printStackTrace();
+			Log.e("ProductDetailActivity","No database element");
+		}
 
 		initUI(savedInstanceState);
 		remember = new String[3];

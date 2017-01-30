@@ -96,7 +96,7 @@ public class ProductCatalog {
 		inventoryDao.clearProductCatalog();
 	}
 	
-	/**
+	/**search
 	 * Hidden product from inventory.
 	 * @param product The product to be hidden.
 	 */
