@@ -31,7 +31,7 @@ import static android.content.ContentValues.TAG;
 
 public class UDPBroadcastSerrvice extends Service {
     // constant
-    public static final long NOTIFY_INTERVAL = 10 * 1000; // 10 seconds
+    public static final long NOTIFY_INTERVAL = 10 * 3000; // 10 seconds
 
     // run on another Thread to avoid crash
     private Handler mHandler = new Handler();
@@ -43,9 +43,10 @@ public class UDPBroadcastSerrvice extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
+    Handler handler;
     @Override
     public void onCreate() {
+         handler= new Handler();
         // cancel if already existed
         if (mTimer != null) {
             mTimer.cancel();
@@ -54,7 +55,7 @@ public class UDPBroadcastSerrvice extends Service {
             mTimer = new Timer();
         }
         // schedule task
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
     }
 
     class TimeDisplayTimerTask extends TimerTask {
@@ -63,9 +64,16 @@ public class UDPBroadcastSerrvice extends Service {
         public void run() {
             // run on another thread
 
-                //    new UDPAsyncTask().execute("IP");
-              //      Toast.makeText(getApplicationContext(), "working",
-              //              Toast.LENGTH_SHORT).show();
+
+                    /*Toast.makeText(getApplicationContext(), "working",
+                           Toast.LENGTH_SHORT).show();*/
+            handler.post(new Runnable() {
+                public void run() {
+                    new Thread(new Task()).start();
+                   // new UDPAsyncTask().execute("IP");
+                    Log.d("dilushan",getIP());
+                }
+            });
 
         }
 
@@ -111,16 +119,16 @@ public class UDPBroadcastSerrvice extends Service {
     byte[] receiveData = new byte[1024];
     String modifiedSentence;
     private void runUdpClient()  {
-        String udpMsg = getIP()+":"+55058;
+        String udpMsg = getIP()+":"+55092;
         DatagramSocket ds = null;
         try {
             ds = new DatagramSocket();
-            InetAddress serverAddr = InetAddress.getByName("192.168.8.100");
+            InetAddress serverAddr = InetAddress.getByName("192.168.8.255");
             DatagramPacket dp;
-            dp = new DatagramPacket(udpMsg.getBytes(), udpMsg.length(), serverAddr, 55058);
+            dp = new DatagramPacket(udpMsg.getBytes(), udpMsg.length(), serverAddr, 55092);
             Log.d("UDP","sended");
-            Toast.makeText(getApplicationContext(), "sending",
-                    Toast.LENGTH_SHORT).show();
+           /* Toast.makeText(getApplicationContext(), "sending",
+                    Toast.LENGTH_SHORT).show();*/
             ds.send(dp);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             ds.receive(receivePacket);
@@ -147,6 +155,7 @@ public class UDPBroadcastSerrvice extends Service {
         protected String doInBackground(String... params) {
             String result = null;
             runUdpClient();
+            Log.d("dilushan","timer");
             return result;
         }
 
@@ -154,6 +163,14 @@ public class UDPBroadcastSerrvice extends Service {
         protected void onPostExecute(String s) {
 
         }
+    }
+    class Task implements Runnable {
+        @Override
+        public void run() {
+            runUdpClient();
+            Log.d("dilushan","timer");
+        }
+
     }
 
 }

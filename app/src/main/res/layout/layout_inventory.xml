@@ -36,7 +36,10 @@
         android:layout_marginRight="2dp"
         android:layout_weight="1" >
     </ListView>
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
     <Button
         android:id="@+id/addProductButton"
         style="@style/ButtonText"
@@ -44,6 +47,18 @@
         android:layout_height="wrap_content"
         android:background="@drawable/btn_green"
         android:ems="10"
+        android:layout_weight="0.5"
         android:text="@string/add_new_product" />
+    <Button
+        android:id="@+id/syncButton"
+        style="@style/ButtonText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:background="@drawable/btn_red"
+        android:text="Scync"
+        android:textSize="20sp" />
+
+</LinearLayout>
 
 </LinearLayout>

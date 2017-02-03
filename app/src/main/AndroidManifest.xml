@@ -29,6 +29,16 @@
         <activity
             android:name="com.example.usid.mpos.UI.ProductDetailActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.usid.mpos.UI.DeviceStatus"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.usid.mpos.UI.LogInDevice"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.usid.mpos.UI.ShopEnvironment"
+            android:screenOrientation="portrait" />
+
         <service
             android:name=".technicalService.SocketService"
             android:enabled="true" >

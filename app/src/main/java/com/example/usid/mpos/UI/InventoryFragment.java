@@ -4,10 +4,12 @@ package com.example.usid.mpos.UI;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +30,16 @@ import com.example.usid.mpos.technicalService.DatabaseExecutor;
 import com.example.usid.mpos.technicalService.Demo;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-
+import java.util.StringTokenizer;
 
 
 /**
@@ -51,7 +58,7 @@ public class InventoryFragment extends UpdatableFragment {
 	private List<Map<String, String>> inventoryList;
 	private Button addProductButton;
 	private EditText searchBox;
-	private Button searchButton;
+	private Button searchButton,synbutton;
 
 	private ViewPager viewPager;
 	private Register register;
@@ -87,6 +94,7 @@ public class InventoryFragment extends UpdatableFragment {
 		addProductButton = (Button) view.findViewById(R.id.addProductButton);
 		searchButton = (Button) view.findViewById(R.id.searchButton);
 		searchBox = (EditText) view.findViewById(R.id.searchBox);
+		synbutton=(Button) view.findViewById(R.id.syncButton);
 
 		main = (MainActivity) getActivity();
 		viewPager = main.getViewPager();
@@ -124,6 +132,64 @@ public class InventoryFragment extends UpdatableFragment {
 				//saleFragment.update();
 				viewPager.setCurrentItem(1);
 			}     
+		});
+		synbutton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Product pd;
+				//get
+
+
+					// URLEncode user defined data
+
+				/*	String loginValue    = URLEncoder.encode(login.getText().toString(), "UTF-8");
+					String fnameValue  = URLEncoder.encode(fname.getText().toString(), "UTF-8");
+					String emailValue   = URLEncoder.encode(email.getText().toString(), "UTF-8");
+					String passValue    = URLEncoder.encode(pass.getText().toString(), "UTF-8");*/
+				SyncAsyncTask runner = new SyncAsyncTask();
+				runner.execute("");
+
+
+				}
+
+
+
+			/*if (nameBox.getText().toString().equals("")
+						|| barcodeBox.getText().toString().equals("")
+						|| priceBox.getText().toString().equals("")) {
+
+					Toast.makeText(getActivity().getBaseContext(),
+							res.getString(R.string.please_input_all), Toast.LENGTH_SHORT)
+							.show();
+
+				} else {
+					boolean success = productCatalog.addProduct(nameBox
+							.getText().toString(), barcodeBox.getText()
+							.toString(), Double.parseDouble(priceBox.getText()
+							.toString()));
+					pd=new Product(nameBox
+							.getText().toString(), barcodeBox.getText()
+							.toString(), Double.parseDouble(priceBox.getText()
+							.toString()));
+					addInJSONArray(pd);
+					MainActivity.plist.add(pd);
+
+					if (success) {
+						Toast.makeText(getActivity().getBaseContext(),
+								res.getString(R.string.success) + ", "
+										+ nameBox.getText().toString(),
+								Toast.LENGTH_SHORT).show();
+
+						fragment.update();
+						clearAllBox();
+						AddProductDialogFragment.this.dismiss();
+
+					} else {
+						Toast.makeText(getActivity().getBaseContext(),
+								res.getString(R.string.fail),
+								Toast.LENGTH_SHORT).show();
+					}
+				}*/
+			//}
 		});
 
 	/*	searchButton.setOnClickListener(new View.OnClickListener() {
@@ -218,5 +284,78 @@ public class InventoryFragment extends UpdatableFragment {
 		super.onResume();
 		update();
 	}
+	class SyncAsyncTask extends AsyncTask<String, Void, String> {
+		//Background task which serve for the client
+		@Override
+		protected String doInBackground(String... params) {
+			String result = null;
+			// Create http cliient object to send request to server
+
+			HttpClient Client = new DefaultHttpClient();
+
+			// Create URL string
+
+			String URL = "http://safsaf.net16.net/get.php";
+
+
+			//Log.i("httpget", URL);
+
+			try
+			{
+				String SetServerString = "";
+				String[] productDetail=new String[10];
+
+				// Create Request to server and get response
+
+				HttpGet httpget = new HttpGet(URL);
+				ResponseHandler<String> responseHandler = new BasicResponseHandler();
+				SetServerString = Client.execute(httpget, responseHandler);
+
+				// Show response on activity
+
+				Log.d("nalin",SetServerString);
+				/*Toast.makeText(getActivity().getBaseContext(),
+						SetServerString,
+						Toast.LENGTH_SHORT).show();*/
+				StringTokenizer tokenizer = new StringTokenizer(SetServerString, " \t\n\r\f\",.:;?![]'");
+				int count=0;
+				while (tokenizer.hasMoreElements()) {
+					productDetail[count]=tokenizer.nextElement().toString();
+					count++;
+					if(count>8)
+						break;
+				}
+				if(count>=3){
+					boolean success = productCatalog.addProduct(productDetail[0], productDetail[1], 50.0);
+					if (success) {
+						/*Toast.makeText(getActivity().getBaseContext(),
+								res.getString(R.string.success) ,
+								Toast.LENGTH_SHORT).show();*/
+
+						saleFragment.update();
+
+
+					} else {
+						/*Toast.makeText(getActivity().getBaseContext(),
+								res.getString(R.string.fail),
+								Toast.LENGTH_SHORT).show();*/
+					}
+					count=0;
+				}
+
+			}
+			catch(Exception ex)
+			{   ex.printStackTrace();
+				Log.d("nalin","Fail!");
+			}
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String s) {
+
+		}
+	}
+
 
 }

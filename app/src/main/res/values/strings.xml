@@ -21,7 +21,7 @@
     <string name="change">Change</string>
     <string name="hint_search">Enter name or barcode</string>
     <string name="hint_cash">Enter cash here</string>
-    <string name="add_new_product">Add New Product</string>
+    <string name="add_new_product">Add Product</string>
     <string name="add_stock">Add A Product Lot</string>
     <string name="previous">&lt;</string>
     <string name="next">></string>
@@ -44,6 +44,7 @@
     <string name="dialog_clear_sale">Are you sure you want to CLEAR this sale?</string>
     <string name="hint_empty_sale">Sale is empty.</string>
     <string name="quit">Quit</string>
+    <string name="Scync">Sync</string>
     <string name="no">No</string>
     <string name="product_detail">Product Detail</string>
     <string name="stock">Stock</string>
@@ -57,6 +58,13 @@
     <string name="chip_card">Chip card payment</string>
     <string name="NFC">NFC payment</string>
     <string name="mobile_payment">Mobile payment</string>
+    <string name="device_detail">Device status</string>
+    <string name="NFC_reader">NFC reader</string>
+    <string name="swip_card_reader">swipe card</string>
+    <string name="chip_card_reader">chip card reader</string>
+    <string name="barcode_reader">Barcode reader</string>
+    <string name="LogIn">Log In</string>
+    <string name="environment_de">Environment</string>
 
 
     <string-array name="period">

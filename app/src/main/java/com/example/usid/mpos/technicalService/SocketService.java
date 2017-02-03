@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -19,7 +20,7 @@ import java.net.Socket;
  * Created by usid on 12/1/16.
  */
 
-public class SocketService extends Service{
+public class SocketService extends Service {
     private static String LOG_TAG = "BroadcastService";
     public static final String BROADCAST_ACTION = "com.websmithing.broadcasttest.displayevent";
     Intent intent1;
@@ -40,7 +41,10 @@ public class SocketService extends Service{
             public void run() {
                 try {
                     //Create a server socket object and bind it to a port
-                    ServerSocket socServer = new ServerSocket(SERVER_PORT);
+                    /*ServerSocket socServer = new ServerSocket(SERVER_PORT);*/
+                    ServerSocket socServer = new ServerSocket(); // <-- create an unbound socket first
+                    socServer.setReuseAddress(true);
+                    socServer.bind(new InetSocketAddress(SERVER_PORT)); // <-- now bind it
                     //Create server side client socket reference
                     Socket socClient = null;
                     String result;

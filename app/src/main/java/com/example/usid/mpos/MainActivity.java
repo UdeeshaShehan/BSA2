@@ -27,7 +27,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.usid.mpos.UI.DeviceStatus;
+import com.example.usid.mpos.UI.ShopEnvironment;
 import com.example.usid.mpos.UI.InventoryFragment;
+import com.example.usid.mpos.UI.LogInDevice;
 import com.example.usid.mpos.UI.MobilePaymentDialogFragment;
 import com.example.usid.mpos.UI.ProductDetailActivity;
 import com.example.usid.mpos.UI.ReportFragment;
@@ -308,6 +311,22 @@ public class MainActivity extends FragmentActivity implements Communicator{
                 /*setLanguage("tam");*/
                 mobilepayment();
                 return true;
+            case R.id.device:
+                Intent nextScreen = new Intent(getApplicationContext(), DeviceStatus.class);
+                startActivity(nextScreen);
+
+                return true;
+            case R.id.login:
+                Intent logScreen = new Intent(getApplicationContext(), LogInDevice.class);
+                startActivity(logScreen);
+
+                return true;
+            case R.id.environment:
+                Intent enScreen = new Intent(getApplicationContext(), ShopEnvironment.class);
+                startActivity(enScreen);
+
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

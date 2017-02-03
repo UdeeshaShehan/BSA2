@@ -13,5 +13,14 @@
     <item
         android:id="@+id/mobile"
         android:title="@string/mobile_payment"/>
+    <item
+        android:id="@+id/device"
+        android:title="@string/device_detail"/>
+    <item
+        android:id="@+id/login"
+        android:title="@string/LogIn"/>
+    <item
+        android:id="@+id/environment"
+        android:title="@string/environment_de"/>
 
 </menu>
