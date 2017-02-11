@@ -74,13 +74,18 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         // schedule task
         mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
     }
-
+    int indicator=0;
     @Override
     public void update(Observable o, Object arg) {
         if(k.getDevice1()&&k.getDevice2()&&k.getDevice3()&&k.getDevice4()){
             mTimer.cancel();
+            indicator=0;
         }else{
-            mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
+                if(indicator==0) {
+                    mTimer = new Timer();
+                    mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
+                    indicator=1;
+                }
         }
 
     }

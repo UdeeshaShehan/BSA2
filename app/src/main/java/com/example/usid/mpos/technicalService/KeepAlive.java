@@ -15,10 +15,10 @@ public class KeepAlive extends Observable{
         return instance;
     }
     private KeepAlive() {
-        device1=false;
-        device2=false;
-        device3=false;
-        device4=false;
+        device1=true;
+        device2=true;
+        device3=true;
+        device4=true;
     }
 
     public boolean getDevice1() {
