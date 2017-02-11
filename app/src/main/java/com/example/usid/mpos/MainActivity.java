@@ -28,13 +28,13 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.usid.mpos.UI.DeviceStatus;
-import com.example.usid.mpos.UI.ShopEnvironment;
 import com.example.usid.mpos.UI.InventoryFragment;
 import com.example.usid.mpos.UI.LogInDevice;
 import com.example.usid.mpos.UI.MobilePaymentDialogFragment;
 import com.example.usid.mpos.UI.ProductDetailActivity;
 import com.example.usid.mpos.UI.ReportFragment;
 import com.example.usid.mpos.UI.SaleFragment;
+import com.example.usid.mpos.UI.ShopEnvironment;
 import com.example.usid.mpos.UI.UpdatableFragment;
 import com.example.usid.mpos.domain.LanguageController;
 import com.example.usid.mpos.domain.inventory.Inventory;
@@ -85,12 +85,13 @@ public class MainActivity extends FragmentActivity implements Communicator{
     @Override
     protected void onResume() {
         super.onResume();
-        serviceIntent = new Intent(getApplicationContext(),
+        /*serviceIntent = new Intent(getApplicationContext(),
                 SocketService.class);
         startService(serviceIntent);
 
         registerReceiver(receiver, new IntentFilter(
-                SocketService.BROADCAST_ACTION));
+                SocketService.BROADCAST_ACTION));*/
+
     }
 
     @SuppressLint("NewApi")
@@ -143,6 +144,12 @@ public class MainActivity extends FragmentActivity implements Communicator{
         SDK_SUPPORTED = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         initiateActionBar();
         startService(new Intent(this, UDPBroadcastSerrvice.class));
+        serviceIntent = new Intent(this,
+                SocketService.class);
+        startService(serviceIntent);
+
+        registerReceiver(receiver, new IntentFilter(
+                SocketService.BROADCAST_ACTION));
         FragmentManager fragmentManager = getSupportFragmentManager();
         pagerAdapter = new PagerAdapter(fragmentManager, res);
         viewPager.setAdapter(pagerAdapter);
@@ -158,11 +165,36 @@ public class MainActivity extends FragmentActivity implements Communicator{
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+       /* try {
+            stopService(serviceIntent);
+//            unregisterReceiver(receiver);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            stopService(serviceIntent);
+//            unregisterReceiver(receiver);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         try {
-            stopService(serviceIntent);
-            unregisterReceiver(receiver);
+          //  stopService(serviceIntent);
+        //   unregisterReceiver(receiver);
             stopService(new Intent(this, UDPBroadcastSerrvice.class));
         }catch (Exception e){
             e.printStackTrace();

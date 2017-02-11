@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -207,26 +206,27 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			public void onReceive(Context context, Intent intent) {
 
 				String result = intent.getStringExtra("result");
-				if(!result.substring(0,2).equals("ba")) {
-					String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
-					track = track.replaceAll("no", "");
-					track = track.replaceAll("\\,", "");
+				if(result.length()>=3) {
+					if (!result.substring(0, 2).equals("ba")) {
+						String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+						track = track.replaceAll("no", "");
+						track = track.replaceAll("\\,", "");
 
-					String[] details = track.split("\\^");
-					details[0] = details[0].replace("%B", "");
-					details[1] = details[1].replace("/", " ");
-					details[2] = details[2].substring(0, 4);
-					String cardNu = details[0].substring(0, 4) + " **** **** ****";
-					String eYear = details[2].substring(0, 2);
-					String eMonth = details[2].substring(2);
+						String[] details = track.split("\\^");
+						details[0] = details[0].replace("%B", "");
+						details[1] = details[1].replace("/", " ");
+						details[2] = details[2].substring(0, 4);
+						String cardNu = details[0].substring(0, 4) + " **** **** ****";
+						String eYear = details[2].substring(0, 2);
+						String eMonth = details[2].substring(2);
 
 
-					cardHolder.setText(details[1]);
+						cardHolder.setText(details[1]);
 
-					expiryDate.setText(eMonth + "/" + eYear);
-					cardNo.setText(cardNu);
+						expiryDate.setText(eMonth + "/" + eYear);
+						cardNo.setText(cardNu);
+					}
 				}
-
 			}
 		};
 		return view;
@@ -310,7 +310,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		thread =new Thread(new Runnable() {
+		/*thread =new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -333,7 +333,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 					e.printStackTrace();
 				}
 			}
-		});
+		});*/
 		//thread.start();
 	}
 
@@ -410,7 +410,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 		getActivity().registerReceiver(receiverr, new IntentFilter(
 				SocketService.BROADCAST_ACTION));
-/*		if(!thread.isAlive()) {
+		/*if(!thread.isAlive()) {
 			thread.start();
 		}*/
 		//	update();

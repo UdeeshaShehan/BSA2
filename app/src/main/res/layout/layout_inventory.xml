@@ -5,7 +5,8 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    android:padding="5dp" >
+    android:padding="5dp"
+    android:background="@drawable/backr">
 
     <LinearLayout
         android:layout_width="match_parent"

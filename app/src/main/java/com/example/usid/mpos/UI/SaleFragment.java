@@ -133,9 +133,11 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 			public void onReceive(Context context, Intent intent) {
 
 				String result = intent.getStringExtra("result");
-				if(!result.substring(0,2).equals("ba")) {
-					cardNo.setText(result.substring(22,38));//.substring(5,21));
-				}else {
+			if(result.length()>=2) {
+				if (!result.substring(0, 2).equals("ba")) {
+					if(result.length()>=40)
+					cardNo.setText(result.substring(22, 38));//.substring(5,21));
+				} else {
 					Product pd = null;
 					setListViewSale(result.substring(3));
 
@@ -168,7 +170,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 					setListViewSale(result.substring(3));
 					//cardNo.setText(result);
 				}
-
+			}
 			}
 		};
 		return view;
