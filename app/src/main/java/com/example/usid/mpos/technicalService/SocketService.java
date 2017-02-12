@@ -54,7 +54,7 @@ public class SocketService extends Service {
         keepAlive=KeepAlive.getInstance();
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
-        myTimer.schedule(myTask, 30000, 30000);
+        myTimer.schedule(myTask, 40000, 40000);
         intent1 = new Intent(BROADCAST_ACTION);
     }
     private final int SERVER_PORT = 8080;
@@ -75,6 +75,7 @@ public class SocketService extends Service {
         return socServerU;
     }
     Thread thread;
+    long timestamp;
     @Override
     public synchronized int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(LOG_TAG, "In onStartCommand");
@@ -133,7 +134,7 @@ public class SocketService extends Service {
                                     mySocket.getOutputStream(), true);
                             InetAddress serverAddr = socClient.getInetAddress();
                             Log.d("IP clien",serverAddr.toString());
-                            String test="Udeesha";
+                            String test="OK";
                             try (InputStream isEnc = new ByteArrayInputStream(test.getBytes(StandardCharsets.UTF_8));
                                  ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
                             {
@@ -173,33 +174,16 @@ public class SocketService extends Service {
                             //result="";
                       //      result = br.readLine();
 //                            Log.d("Chacha",result);
+                            today = new java.util.Date();
+                            ts1 = new java.sql.Timestamp(today.getTime());
                             String modifiedSentence;
-                            if(actual!=null&&!actual.equals("")) {
-                                a = actual.charAt(0);
-                                today = new Date();
-                                ts1 = new Timestamp(today.getTime());
-                                switch (a) {
-                                    case '1':
-                                        b[0] = ts1.getTime();
-                                        Log.d("light1",Long.toString(b[0]));
-                                        break;
-                                    case '2':
-                                        b[1] = ts1.getTime();
-                                        Log.d("light2",Long.toString(b[1]));
-                                        break;
-                                    case '3':
-                                        b[2] = ts1.getTime();
-                                        Log.d("light3",Long.toString(b[2]));
-                                        break;
-                                    case '4':
-                                        b[3] = ts1.getTime();
-                                        Log.d("light4",Long.toString(b[3]));
-                                        break;
-                                    case '5':
-                                        modifiedSentence =actual.substring(2) ;
-                                        Log.d("receive",modifiedSentence);
-                                        int total;
-                                        String t,t1;
+                            Long tsLong = System.currentTimeMillis()/1000;
+                            String ts = tsLong.toString();
+                            if(actual!=null&&!actual.equals("")&&actual.length()>=9&&actual.charAt(0)=='5'){
+                                modifiedSentence = actual.substring(2);
+                                Log.d("receive", modifiedSentence);
+                                int total;
+                                String t, t1;
                                        /* String actual2;
                                         InputStream stream = new ByteArrayInputStream(modifiedSentence.getBytes(StandardCharsets.UTF_8));
                                         try (InputStream isDec = stream;
@@ -215,31 +199,30 @@ public class SocketService extends Service {
                                             //Assert.assertEquals(test, actual);
                                         }
 */
-                                        try {
-                                            Thread.sleep(5000);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        if(modifiedSentence.length()==8){
-                                            try {
-                                                total = Integer.parseInt(modifiedSentence.substring(0, 4)) + Integer.parseInt(modifiedSentence.substring(4));
-                                                if(Integer.toString(total).length()==4)
-                                                 t = "0"+Integer.toString(total) + " " + Long.toString(ts1.getTime());
-                                                else
-                                                 t = Integer.toString(total) + " " + Long.toString(ts1.getTime());
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                if (modifiedSentence.length() == 8) {
+                                    try {
+                                        total = Integer.parseInt(modifiedSentence.substring(0, 4)) + Integer.parseInt(modifiedSentence.substring(4));
+                                        if (Integer.toString(total).length() == 4)
+                                            t = "0" + Integer.toString(total) + " " + Long.toString(ts1.getTime());
+                                        else
+                                            t = Integer.toString(total) + " " + Long.toString(ts1.getTime());
 
-                                            try (InputStream isEnc = new ByteArrayInputStream(t.getBytes(StandardCharsets.UTF_8));
-                                                 ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
-                                            {
-                                                encChaCha(isEnc, osEnc, key, iv);
-                                                t1 = new String(osEnc.toByteArray(),"UTF-8");
-                                                out.println(t1);
-                                                ds = new DatagramSocket();
-                                                DatagramPacket dp;
-                                                dp = new DatagramPacket(osEnc.toByteArray(), osEnc.size(), serverAddr, 55092);
-                                                ds.send(dp);
-                                            }
-                                                Log.d("res",t1);
+                                        try (InputStream isEnc = new ByteArrayInputStream(t.getBytes(StandardCharsets.UTF_8));
+                                             ByteArrayOutputStream osEnc = new ByteArrayOutputStream()) {
+                                            encChaCha(isEnc, osEnc, key, iv);
+                                            t1 = new String(osEnc.toByteArray(), "UTF-8");
+                                            out.println(t1);
+                                            ds = new DatagramSocket();
+                                            DatagramPacket dp;
+                                            dp = new DatagramPacket(osEnc.toByteArray(), osEnc.size(), serverAddr, 55092);
+                                            ds.send(dp);
+                                        }
+                                        Log.d("res", t1);
                                                /* if(!mySocket.isClosed()) {
                                                     Log.d("Is closed", "not closed");
                                                     PrintWriter out1 = new PrintWriter(
@@ -248,17 +231,101 @@ public class SocketService extends Service {
                                                     out.flush();
                                                     out.close();
                                                 }*/
-                                            }catch (NumberFormatException e){
+                                    } catch (NumberFormatException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            if(actual!=null&&!actual.equals("")&&(actual.length()>10)) {
+                                try{
+                                if ((Long.parseLong(ts) - Long.parseLong(actual.substring(0, 10))) < 5) {
+                                    a = actual.charAt(11);
+
+                                    switch (a) {
+                                        case '1':
+                                            b[0] = ts1.getTime();
+                                            Log.d("light1", Long.toString(b[0]));
+                                            break;
+                                        case '2':
+                                            b[1] = ts1.getTime();
+                                            Log.d("light2", Long.toString(b[1]));
+                                            break;
+                                        case '3':
+                                            b[2] = ts1.getTime();
+                                            Log.d("light3", Long.toString(b[2]));
+                                            break;
+                                        case '4':
+                                            b[3] = ts1.getTime();
+                                            Log.d("light4", Long.toString(b[3]));
+                                            break;
+                                        case '5':
+                                            modifiedSentence = actual.substring(2);
+                                            Log.d("receive", modifiedSentence);
+                                            int total;
+                                            String t, t1;
+                                       /* String actual2;
+                                        InputStream stream = new ByteArrayInputStream(modifiedSentence.getBytes(StandardCharsets.UTF_8));
+                                        try (InputStream isDec = stream;
+                                             ByteArrayOutputStream osDec = new ByteArrayOutputStream())
+                                        {
+                                            decChaCha(isDec, osDec, key, iv);
+
+                                            byte[] decoded = osDec.toByteArray();
+
+                                            actual2 = new String(decoded, StandardCharsets.UTF_8);
+                                            Log.d("ChachaUDP",actual2);
+                                            //System.out.println(test+" "+actual);
+                                            //Assert.assertEquals(test, actual);
+                                        }
+*/
+                                            try {
+                                                Thread.sleep(1000);
+                                            } catch (InterruptedException e) {
                                                 e.printStackTrace();
                                             }
-                                        }
+                                            if (modifiedSentence.length() == 8) {
+                                                try {
+                                                    total = Integer.parseInt(modifiedSentence.substring(0, 4)) + Integer.parseInt(modifiedSentence.substring(4));
+                                                    if (Integer.toString(total).length() == 4)
+                                                        t = "0" + Integer.toString(total) + " " + Long.toString(ts1.getTime());
+                                                    else
+                                                        t = Integer.toString(total) + " " + Long.toString(ts1.getTime());
 
-                                        break;
+                                                    try (InputStream isEnc = new ByteArrayInputStream(t.getBytes(StandardCharsets.UTF_8));
+                                                         ByteArrayOutputStream osEnc = new ByteArrayOutputStream()) {
+                                                        encChaCha(isEnc, osEnc, key, iv);
+                                                        t1 = new String(osEnc.toByteArray(), "UTF-8");
+                                                        out.println(t1);
+                                                        ds = new DatagramSocket();
+                                                        DatagramPacket dp;
+                                                        dp = new DatagramPacket(osEnc.toByteArray(), osEnc.size(), serverAddr, 55092);
+                                                        ds.send(dp);
+                                                    }
+                                                    Log.d("res", t1);
+                                               /* if(!mySocket.isClosed()) {
+                                                    Log.d("Is closed", "not closed");
+                                                    PrintWriter out1 = new PrintWriter(
+                                                            mySocket.getOutputStream(), true);
+                                                    out.println(t1);
+                                                    out.flush();
+                                                    out.close();
+                                                }*/
+                                                } catch (NumberFormatException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+
+                                            break;
+                                    }
+                                    intent1.putExtra("result", actual.substring(11));//get rid of timestamp
+                                    sendBroadcast(intent1);
+                                    //   Log.e("Chacha", "1 one"+result);
+                                    //Close the client connection
                                 }
-                                intent1.putExtra("result", actual);
-                                sendBroadcast(intent1);
-                             //   Log.e("Chacha", "1 one"+result);
-                                //Close the client connection
+                            }catch(Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                             mySocket.close();
                         } catch (IOException e1) {

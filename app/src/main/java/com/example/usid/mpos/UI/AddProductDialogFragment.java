@@ -139,6 +139,9 @@ public class AddProductDialogFragment extends DialogFragment {
 							.getText().toString(), barcodeBox.getText()
 							.toString(), Double.parseDouble(priceBox.getText()
 							.toString()));
+					String name=nameBox.getText().toString();
+					String barcode=barcodeBox.getText()
+							.toString();
 					pd=new Product(nameBox
 							.getText().toString(), barcodeBox.getText()
 							.toString(), Double.parseDouble(priceBox.getText()

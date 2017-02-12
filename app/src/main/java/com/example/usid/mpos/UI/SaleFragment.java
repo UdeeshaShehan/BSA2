@@ -133,13 +133,14 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 			public void onReceive(Context context, Intent intent) {
 
 				String result = intent.getStringExtra("result");
-			if(result.length()>=2) {
+			if(result.length()>=3) {
 				if (!result.substring(0, 2).equals("ba")) {
 					if(result.length()>=40)
 					cardNo.setText(result.substring(22, 38));//.substring(5,21));
 				} else {
 					Product pd = null;
 					setListViewSale(result.substring(3));
+					Log.e("barcode",result.substring(3));
 
 			/*try {
 
@@ -167,7 +168,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 						}
 
 					});
-					setListViewSale(result.substring(3));
+					//setListViewSale(result.substring(3));
 					//cardNo.setText(result);
 				}
 			}
@@ -246,11 +247,11 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 		confirmButton.setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				if(count==2)
+				/*if(count==2)
 					count=0;
                 String f=barcode1[count];
 				count++;
-				setListViewSale(f);
+				setListViewSale(f);*/
 				Float tf=new Float(total);
 				com.sendPrice(tf.toString());
 				/*Product product;
@@ -277,6 +278,8 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	float total = 0;
 
 	public void setListViewSale(String s) {
+		Log.e("List","list");
+		Log.e("list",s);
 		saleBarcode = "1,2,3,4";
 		int in=0;
 		if (s != null){

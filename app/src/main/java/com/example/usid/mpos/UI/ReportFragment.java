@@ -169,21 +169,23 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 						@Override
 						protected void onPostExecute(Object o) {
 							super.onPostExecute(o);
-							progress.dismiss();
-							JSONObject res = null;
 							try {
-								res = new JSONObject(results);
-								if(res.getString("status").equals("1")){
-									Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
-								}
-								else {
-									Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+								progress.dismiss();
+								JSONObject res = null;
+								try {
+									res = new JSONObject(results);
+									if (res.getString("status").equals("1")) {
+										Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+									} else {
+										Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
 
+									}
+								} catch (JSONException e) {
+									e.printStackTrace();
 								}
-							} catch (JSONException e) {
+							}catch (Exception e){
 								e.printStackTrace();
 							}
-
 
 						}
 					};

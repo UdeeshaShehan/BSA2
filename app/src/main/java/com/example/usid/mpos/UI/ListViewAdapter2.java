@@ -1,6 +1,7 @@
 package com.example.usid.mpos.UI;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,7 +72,9 @@ public class ListViewAdapter2 extends BaseAdapter {
             txtFourth=(TextView) convertView.findViewById(R.id.barcode);
 
         }
-
+        txtSecond.setTextColor(Color.WHITE);
+        txtThird.setTextColor(Color.WHITE);
+        txtFourth.setTextColor(Color.WHITE);
         Map<String, String> map=list.get(position);
         txtSecond.setText(map.get(SECOND_COLUMN));
         txtThird.setText(map.get(THIRD_COLUMN));

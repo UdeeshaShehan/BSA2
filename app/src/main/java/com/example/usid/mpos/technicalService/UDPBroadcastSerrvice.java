@@ -168,10 +168,8 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         DatagramSocket ds = null;
         int total=0;
         String t,t1,t2;
-        java.util.Date today;
-        java.sql.Timestamp ts1;
-        today = new java.util.Date();
-        ts1 = new java.sql.Timestamp(today.getTime());
+        Long tsLong = System.currentTimeMillis()/1000;
+        String ts = tsLong.toString();
         byte[] key = new byte[32]; // 32 for 256 bit key or 16 for 128 bit
         byte[] iv = new byte[8]; // 64 bit IV required by ChaCha20
         int [] ikey={1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216};
@@ -221,7 +219,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
 
             if(actual.length()==8){
                total=Integer.parseInt(actual.substring(0,4))+Integer.parseInt(actual.substring(4));
-                t=Integer.toString(total)+" "+Long.toString(ts1.getTime());
+                t=Integer.toString(total)+" "+ts;
 
                 try (InputStream isEnc = new ByteArrayInputStream(t.getBytes(StandardCharsets.UTF_8));
                      ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
