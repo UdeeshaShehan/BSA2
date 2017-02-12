@@ -206,7 +206,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			public void onReceive(Context context, Intent intent) {
 
 				String result = intent.getStringExtra("result");
-				if(result.length()>=3) {
+				if(result.length()>=20) {
 					if (!result.substring(0, 2).equals("ba")) {
 						String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
 						track = track.replaceAll("no", "");

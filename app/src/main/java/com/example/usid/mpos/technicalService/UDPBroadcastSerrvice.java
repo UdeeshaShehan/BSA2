@@ -45,7 +45,7 @@ import static android.content.ContentValues.TAG;
 
 public class UDPBroadcastSerrvice extends Service implements Observer{
     // constant
-    public static final long NOTIFY_INTERVAL = 10 * 3000; // 10 seconds
+    public static final long NOTIFY_INTERVAL = 10 * 1000; // 10 seconds
 
     // run on another Thread to avoid crash
     private Handler mHandler = new Handler();
@@ -72,7 +72,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         }
 
         // schedule task
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
     int indicator=0;
     @Override
@@ -128,6 +128,19 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
             return null;
         }
     }
+    static final String HEXES = "0123456789ABCDEF";
+    public static String getHex( byte [] raw ) {
+        if ( raw == null ) {
+            return null;
+        }
+        final StringBuilder hex = new StringBuilder( 2 * raw.length );
+        for ( final byte b : raw ) {
+            hex.append(HEXES.charAt((b & 0xF0) >> 4))
+                    .append(HEXES.charAt((b & 0x0F)));
+            // hex.append(' ');
+        }
+        return hex.toString();
+    }
     /** Get IP For mobile */
     public static String getMobileIP() {
         try {
@@ -174,21 +187,23 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
             ds = new DatagramSocket();
             InetAddress serverAddr = InetAddress.getByName("192.168.8.255");
             DatagramPacket dp;
-            try (InputStream isEnc = new ByteArrayInputStream(udpMsg.getBytes(StandardCharsets.UTF_8));
+            try (InputStream isEnc = new ByteArrayInputStream(udpMsg.getBytes(StandardCharsets.US_ASCII));
                  ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
             {
                 encChaCha(isEnc, osEnc, key, iv);
-                t2 = new String(osEnc.toByteArray(),"UTF-8");
-
+                t2 = new String(osEnc.toByteArray(),"ASCII");
+                dp = new DatagramPacket(osEnc.toByteArray(), osEnc.size(), serverAddr, 55092);
             }
-            dp = new DatagramPacket(t2.getBytes(), t2.length(), serverAddr, 55092);
-            Log.d("UDP","sended");
+
+            Log.d("UDP",t2);
+            Log.d("UDP Hex",getHex(t2.getBytes()));
            /* Toast.makeText(getApplicationContext(), "sending",
                     Toast.LENGTH_SHORT).show();*/
             ds.send(dp);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             ds.receive(receivePacket);
             modifiedSentence = new String(receivePacket.getData());
+            Log.d("receive",modifiedSentence);
             String actual;
             InputStream stream = new ByteArrayInputStream(modifiedSentence.getBytes(StandardCharsets.UTF_8));
             try (InputStream isDec = stream;
@@ -199,7 +214,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
                 byte[] decoded = osDec.toByteArray();
 
                 actual = new String(decoded, StandardCharsets.UTF_8);
-                Log.d("Chacha",actual);
+                Log.d("ChachaUDP",actual);
                 //System.out.println(test+" "+actual);
                 //Assert.assertEquals(test, actual);
             }

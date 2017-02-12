@@ -21,6 +21,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -109,6 +112,7 @@ public class SocketService extends Service {
                         //Accepted client socket object will pass as the parameter
                         //serverAsyncTask.execute(new Socket[] {socClient});
                         Socket mySocket = socClient;
+                        DatagramSocket ds = null;
                         try {
                             //Get the data input stream comming from the client
                             // String j[]={"7B4117E8", "C9B97794E1809E07BB271BF07C861003" };
@@ -127,7 +131,9 @@ public class SocketService extends Service {
                             //Get the output stream to the client
                             PrintWriter out = new PrintWriter(
                                     mySocket.getOutputStream(), true);
-                            String test="Udeesha Shehan Iddamalgoda Dissanayaka";
+                            InetAddress serverAddr = socClient.getInetAddress();
+                            Log.d("IP clien",serverAddr.toString());
+                            String test="Udeesha";
                             try (InputStream isEnc = new ByteArrayInputStream(test.getBytes(StandardCharsets.UTF_8));
                                  ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
                             {
@@ -140,7 +146,8 @@ public class SocketService extends Service {
                                 for(int i=0;i<s.length;i++){
                                     out.println(s[i]);
                                 }*/
-                                out.println(getHex(osEnc.toByteArray()));
+                              out.println(getHex(osEnc.toByteArray()));
+                                Log.d("sended",getHex(osEnc.toByteArray()));
                                // out.println("Udeesha Dilshan Murshith Safwan");
                             }
                             //Write data to the data output stream
@@ -164,8 +171,9 @@ public class SocketService extends Service {
                                 //Assert.assertEquals(test, actual);
                             }
                             //result="";
-                            result = br.readLine();
+                      //      result = br.readLine();
 //                            Log.d("Chacha",result);
+                            String modifiedSentence;
                             if(actual!=null&&!actual.equals("")) {
                                 a = actual.charAt(0);
                                 today = new Date();
@@ -187,10 +195,69 @@ public class SocketService extends Service {
                                         b[3] = ts1.getTime();
                                         Log.d("light4",Long.toString(b[3]));
                                         break;
+                                    case '5':
+                                        modifiedSentence =actual.substring(2) ;
+                                        Log.d("receive",modifiedSentence);
+                                        int total;
+                                        String t,t1;
+                                       /* String actual2;
+                                        InputStream stream = new ByteArrayInputStream(modifiedSentence.getBytes(StandardCharsets.UTF_8));
+                                        try (InputStream isDec = stream;
+                                             ByteArrayOutputStream osDec = new ByteArrayOutputStream())
+                                        {
+                                            decChaCha(isDec, osDec, key, iv);
+
+                                            byte[] decoded = osDec.toByteArray();
+
+                                            actual2 = new String(decoded, StandardCharsets.UTF_8);
+                                            Log.d("ChachaUDP",actual2);
+                                            //System.out.println(test+" "+actual);
+                                            //Assert.assertEquals(test, actual);
+                                        }
+*/
+                                        try {
+                                            Thread.sleep(5000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if(modifiedSentence.length()==8){
+                                            try {
+                                                total = Integer.parseInt(modifiedSentence.substring(0, 4)) + Integer.parseInt(modifiedSentence.substring(4));
+                                                if(Integer.toString(total).length()==4)
+                                                 t = "0"+Integer.toString(total) + " " + Long.toString(ts1.getTime());
+                                                else
+                                                 t = Integer.toString(total) + " " + Long.toString(ts1.getTime());
+
+                                            try (InputStream isEnc = new ByteArrayInputStream(t.getBytes(StandardCharsets.UTF_8));
+                                                 ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
+                                            {
+                                                encChaCha(isEnc, osEnc, key, iv);
+                                                t1 = new String(osEnc.toByteArray(),"UTF-8");
+                                                out.println(t1);
+                                                ds = new DatagramSocket();
+                                                DatagramPacket dp;
+                                                dp = new DatagramPacket(osEnc.toByteArray(), osEnc.size(), serverAddr, 55092);
+                                                ds.send(dp);
+                                            }
+                                                Log.d("res",t1);
+                                               /* if(!mySocket.isClosed()) {
+                                                    Log.d("Is closed", "not closed");
+                                                    PrintWriter out1 = new PrintWriter(
+                                                            mySocket.getOutputStream(), true);
+                                                    out.println(t1);
+                                                    out.flush();
+                                                    out.close();
+                                                }*/
+                                            }catch (NumberFormatException e){
+                                                e.printStackTrace();
+                                            }
+                                        }
+
+                                        break;
                                 }
                                 intent1.putExtra("result", actual);
                                 sendBroadcast(intent1);
-                                Log.e("Chacha", "1 one"+result);
+                             //   Log.e("Chacha", "1 one"+result);
                                 //Close the client connection
                             }
                             mySocket.close();
