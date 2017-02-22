@@ -327,22 +327,22 @@ public class MainActivity extends FragmentActivity implements Communicator{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.swipe:
-                /*setLanguage("en");*/
+           /* case R.id.swipe:
+                *//*setLanguage("en");*//*
                 swipeardpayment();
                 return true;
             case R.id.chip:
-                /*setLanguage("sin");*/
+                *//*setLanguage("sin");*//*
                 chipecardpayment();
                 return true;
             case R.id.NFC:
-                /*setLanguage("tam");*/
+                *//*setLanguage("tam");*//*
                 nfcpayment();
                 return true;
             case R.id.mobile:
-                /*setLanguage("tam");*/
+                *//*setLanguage("tam");*//*
                 mobilepayment();
-                return true;
+                return true;*/
             case R.id.device:
                 Intent nextScreen = new Intent(getApplicationContext(), DeviceStatus.class);
                 startActivity(nextScreen);
@@ -402,6 +402,7 @@ public class MainActivity extends FragmentActivity implements Communicator{
 
     @Override
     public void respond(String name, String barcode, String price) {
+       fragCom.passDataToActivity(name,barcode,price);
        fragCom.passDataToActivity(name,barcode,price);
     }
 

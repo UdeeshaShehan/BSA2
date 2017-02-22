@@ -7,7 +7,75 @@
     android:orientation="vertical"
     android:padding="5dp"
     android:background="@drawable/backi">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
 
+        <TextView
+            android:id="@+id/mobile"
+            style="@style/ButtonText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_black"
+            android:textAlignment="center"
+            android:text="@string/mobile_payment"
+            android:layout_weight="1.05" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/enable"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_red"
+            android:onClick="enable"
+            android:text="@string/enable" />
+
+        <Button
+            android:id="@+id/disable"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_purple"
+            android:onClick="disable"
+            android:text="@string/disable" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/discover"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_red"
+            android:onClick="discoverable"
+            android:text="@string/discoverable" />
+
+        <Button
+            android:id="@+id/connect"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_purple"
+            android:onClick="connect"
+            android:text="@string/connect" />
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -118,13 +186,30 @@
             />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/processPayment"
-        style="@style/ButtonText"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_green"
-        android:ems="10"
-        android:text="@string/process" />
+        android:orientation="horizontal" >
+
+
+        <Button
+            android:id="@+id/processPayment"
+            style="@style/ButtonText"
+            android:layout_width="191dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_green"
+            android:ems="10"
+            android:text="@string/process" />
+
+        <Button
+            android:id="@+id/send"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_green"
+            android:ems="10"
+            android:text="send bill" />
+
+</LinearLayout>
 
 </LinearLayout>

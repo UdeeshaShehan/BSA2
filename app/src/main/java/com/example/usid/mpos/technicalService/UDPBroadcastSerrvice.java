@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -72,7 +71,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         }
 
         // schedule task
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 10000, NOTIFY_INTERVAL);
     }
     int indicator=0;
     @Override
@@ -83,7 +82,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         }else{
                 if(indicator==0) {
                     mTimer = new Timer();
-                    mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
+                    mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 10000, NOTIFY_INTERVAL);
                     indicator=1;
                 }
         }
@@ -198,7 +197,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
            /* Toast.makeText(getApplicationContext(), "sending",
                     Toast.LENGTH_SHORT).show();*/
             ds.send(dp);
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+           /* DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             ds.receive(receivePacket);
             modifiedSentence = new String(receivePacket.getData());
             Log.d("receive",modifiedSentence);
@@ -230,7 +229,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
                 }
                 dp = new DatagramPacket(t1.getBytes(), t1.length(), serverAddr, 55092);
                 ds.send(dp);
-            }
+            }*/
             Toast.makeText(getApplicationContext(), modifiedSentence,
                     Toast.LENGTH_SHORT).show();
         } catch (SocketException e) {
@@ -245,21 +244,6 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
             if (ds != null) {
                 ds.close();
             }
-        }
-    }
-    class UDPAsyncTask extends AsyncTask<String, Void, String> {
-        //Background task which serve for the client
-        @Override
-        protected String doInBackground(String... params) {
-            String result = null;
-            runUdpClient();
-            Log.d("dilushan","timer");
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
         }
     }
     class Task implements Runnable {

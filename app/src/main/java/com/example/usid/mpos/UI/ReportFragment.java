@@ -1,8 +1,11 @@
 package com.example.usid.mpos.UI;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,9 +33,11 @@ import com.example.usid.mpos.R;
 import com.example.usid.mpos.domain.DateTimeStrategy;
 import com.example.usid.mpos.domain.sales.Sale;
 import com.example.usid.mpos.domain.sales.SaleLedger;
+import com.example.usid.mpos.technicalService.BluetoothChatService;
 import com.example.usid.mpos.technicalService.Connection;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
 import com.example.usid.mpos.technicalService.PriceCommunicator;
+import com.example.usid.mpos.technicalService.SalesDetails;
 import com.example.usid.mpos.technicalService.SocketService;
 
 import org.json.JSONException;
@@ -48,6 +55,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * UI for showing sale's record.
@@ -80,6 +88,40 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	public static final int YEARLY = 3;
 	BroadcastReceiver receiverr;
 	Intent serviceIntentr;
+	// Message types sent from the BluetoothChatService Handler
+	public static final int MESSAGE_STATE_CHANGE = 1;
+	public static final int MESSAGE_READ = 2;
+	public static final int MESSAGE_WRITE = 3;
+	public static final int MESSAGE_DEVICE_NAME = 4;
+	public static final int MESSAGE_TOAST = 5;
+
+
+	// Key names received from the BluetoothChatService Handler
+	public static final String DEVICE_NAME = "device_name";
+	public static final String TOAST = "toast";
+
+	// Intent request codes
+	private static final int REQUEST_CONNECT_DEVICE = 1;
+	private static final int REQUEST_ENABLE_BT = 2;
+	private Button enable,disable,discover,connect;
+
+	// Name of the connected device
+	private String mConnectedDeviceName = null;
+	// String buffer for outgoing messages
+	private StringBuffer mOutStringBuffer;
+
+	// Local Bluetooth adapter
+	private BluetoothAdapter mBluetoothAdapter = null;
+
+	// Member object for the chat services
+	private BluetoothChatService mChatService = null;
+
+    /*private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
+    private MessageAdapter mAdapter;*/
+
+	public int counter = 0;
+
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,12 +133,47 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		}
 		
 		View view = inflater.inflate(R.layout.layout_report, container, false);
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		// If the adapter is null, then Bluetooth is not supported
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(getActivity().getBaseContext(), "Bluetooth is not available", Toast.LENGTH_LONG).show();
+			//finish();
+
+		}
 		processPayment = (Button) view.findViewById(R.id.processPayment);
+		enable= (Button) view.findViewById(R.id.enable);
+		disable=(Button) view.findViewById(R.id.disable);
+		discover= (Button) view.findViewById(R.id.discover);
+		connect= (Button) view.findViewById(R.id.connect);
 		cardHolder = (EditText) view.findViewById(R.id.card_holder_name);
 		CVV = (EditText) view.findViewById(R.id.CVV_num);
 		expiryDate = (EditText) view.findViewById(R.id.expiry_date);
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
 		Amount = (EditText) view.findViewById(R.id.amount_id);
+		enable.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+               enable();
+			}
+		});
+		disable.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				disable();
+			}
+		});
+		discover.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+                discoverable();
+			}
+		});
+		connect.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+                connect();
+			}
+		});
 
 		processPayment.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -523,13 +600,213 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			//After finishing the execution of background task data will be write the text view
 			//tvClientMsg.setText(s);
 			//Toast.makeText(getActivity().getBaseContext(), s, Toast.LENGTH_LONG).show();
-			int i=0;
+
 			/*if(s.substring(0,2).equals("no"))
 				cardNo.setText(s.substring(5,21));*/
 			//else
 				//setListViewSale(s);
 		}
 	}
+	public void enable(){
+		if (!mBluetoothAdapter.isEnabled()) {
+			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+		} else {
+			if (mChatService == null) setupChat();
+		}
+	}
+	public void disable(){
+		mBluetoothAdapter.disable();
+		if (mChatService != null) mChatService.stop();
+		Toast.makeText(getActivity().getApplicationContext(),"Bluetooth turned off",
+				Toast.LENGTH_LONG).show();
 
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mChatService != null) mChatService.stop();
+	}
+Button mSendButton;
+	private void setupChat() {
+		/*mOutEditText = (EditText) findViewById(R.id.amount_id);
+		pin= (EditText) findViewById(R.id.CVV_num);
+		mOutEditText.setOnEditorActionListener(mWriteListener);
+		*/
+		mSendButton = (Button) getActivity().findViewById(R.id.send);
+		mSendButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				String message = SalesDetails.bill;
+				sendMessage(message);
+			}
+		});
+
+		// Initialize the BluetoothChatService to perform bluetooth connections
+		mChatService = new BluetoothChatService(getActivity(), mHandler);
+
+		// Initialize the buffer for outgoing messages
+		mOutStringBuffer = new StringBuffer("");
+	}
+	private void ensureDiscoverable() {
+		if (mBluetoothAdapter.getScanMode() !=
+				BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+			startActivity(discoverableIntent);
+		}
+	}
+
+
+	private void sendMessage(String message) {
+
+		// Check that we're actually connected before trying anything
+		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+			Toast.makeText(getActivity().getBaseContext(), R.string.not_connected, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		// Check that there's actually something to send
+		if (message.length() > 0) {
+			// Get the message bytes and tell the BluetoothChatService to write
+			byte[] send = message.getBytes();
+			mChatService.write(send);
+			// Reset out string buffer to zero and clear the edit text field
+			mOutStringBuffer.setLength(0);
+			//mOutEditText.setText(mOutStringBuffer);
+		}
+	}
+	public void connect() {
+		if(mBluetoothAdapter.isEnabled()) {
+			Intent serverIntent = new Intent(getActivity().getApplicationContext(), DeviceListActivity.class);
+			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			Toast.makeText(getActivity().getBaseContext(), "devices",
+					Toast.LENGTH_SHORT).show();
+		}else {
+			Toast.makeText(getActivity().getBaseContext(), "please bluetooth enable",
+					Toast.LENGTH_SHORT).show();
+		}
+
+	}
+
+	public void discoverable() {
+		if(mBluetoothAdapter.isEnabled()) {
+			ensureDiscoverable();
+			Toast.makeText(getActivity().getBaseContext(), "discovering",
+					Toast.LENGTH_SHORT).show();
+		}else {
+			Toast.makeText(getActivity().getBaseContext(), "please bluetooth enable",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	// The Handler that gets information back from the BluetoothChatService
+	private final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case MESSAGE_WRITE:
+					byte[] writeBuf = (byte[]) msg.obj;
+					// construct a string from the buffer
+					String writeMessage = new String(writeBuf);
+                    /*mAdapter.notifyDataSetChanged();
+                    messageList.add(new androidRecyclerView.Message(counter++, writeMessage, "Me"));*/
+					break;
+				case MESSAGE_READ:
+					try {
+						byte[] readBuf = (byte[]) msg.obj;
+						// construct a string from the valid bytes in the buffer
+						String readMessage = new String(readBuf, 0, msg.arg1);
+						if(readMessage.charAt(0)!='9') {
+							StringTokenizer st = new StringTokenizer(readMessage, " ");
+							String res[] = new String[5];
+							int i = 0;
+							while (st.hasMoreTokens()) {
+								res[i] = st.nextToken();
+								i++;
+							}
+							st = new StringTokenizer(res[1], "^");
+							String res2[] = new String[5];
+							i = 0;
+							while (st.hasMoreTokens()) {
+								res2[i] = st.nextToken();
+								i++;
+							}
+							// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+							cardHolder.setText(res2[1].substring(0, 15));
+							Log.d("expire", res2[2]);
+
+							expiryDate.setText(res2[2].substring(0, 2) + "/" + res2[2].substring(2, 4));
+							cardNo.setText(res2[0].substring(2, 4) + "********");
+							Log.d("expire", res2[0]);
+                   /* mAdapter.notifyDataSetChanged();
+                    messageList.add(new androidRecyclerView.Message(counter++, readMessage, mConnectedDeviceName));*/
+						}else{
+							StringTokenizer st = new StringTokenizer(readMessage, " ");
+							String res[] = new String[100];
+							int i = 0;
+							while (st.hasMoreTokens()) {
+								res[i] = st.nextToken();
+								i++;
+							}
+							for(int j=1;j<i;j++) {
+								st = new StringTokenizer(res[j], ",");
+								String res2[] = new String[5];
+								int k = 0;
+								while (st.hasMoreTokens()) {
+									res2[k] = st.nextToken();
+									k++;
+								}
+								Map<String, String> map = new HashMap<String, String>();
+								map.put("name", res2[0]);
+								map.put("barcode", res2[1]);
+								map.put("unitPrice", res2[3]);
+								SalesDetails salesDetails=new SalesDetails();
+								salesDetails.addList(map);
+
+							}
+						}
+					}catch (Exception e){
+						e.printStackTrace();
+					}
+					break;
+				case MESSAGE_DEVICE_NAME:
+					// save the connected device's name
+					mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+					Toast.makeText(getActivity().getBaseContext(), "Connected to "
+							+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+					break;
+				case MESSAGE_TOAST:
+					Toast.makeText(getActivity().getBaseContext(), msg.getData().getString(TOAST),
+							Toast.LENGTH_SHORT).show();
+					break;
+			}
+		}
+	};
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+			case REQUEST_CONNECT_DEVICE:
+				// When DeviceListActivity returns with a device to connect
+				if (resultCode == Activity.RESULT_OK) {
+					// Get the device MAC address
+					String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+					// Get the BLuetoothDevice object
+					BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+
+					// Attempt to connect to the device
+					if(mChatService!=null)
+					mChatService.connect(device);
+				}
+				break;
+			case REQUEST_ENABLE_BT:
+				// When the request to enable Bluetooth returns
+				if (resultCode == Activity.RESULT_OK) {
+					// Bluetooth is now enabled, so set up a chat session
+					setupChat();
+				} else {
+					// User did not enable Bluetooth or an error occured
+					Toast.makeText(getActivity().getBaseContext(), R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+
+				}
+		}
+	}
 
 }

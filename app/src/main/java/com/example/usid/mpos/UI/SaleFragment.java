@@ -34,6 +34,7 @@ import com.example.usid.mpos.domain.sales.Register;
 import com.example.usid.mpos.technicalService.Communicator;
 import com.example.usid.mpos.technicalService.FragmentCommunicator;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
+import com.example.usid.mpos.technicalService.SalesDetails;
 import com.example.usid.mpos.technicalService.SocketService;
 
 import java.io.BufferedReader;
@@ -52,9 +53,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import static android.content.ContentValues.TAG;
 import static android.content.Context.WIFI_SERVICE;
@@ -66,7 +70,7 @@ import static com.example.usid.mpos.MainActivity.plist;
  *
  */
 @SuppressLint("ValidFragment")
-public class SaleFragment extends UpdatableFragment implements FragmentCommunicator{
+public class SaleFragment extends UpdatableFragment implements FragmentCommunicator,Observer {
     
 	private Register register;
 	private ArrayList<Map<String, String>> saleList;
@@ -241,6 +245,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 				totaltex.setText("");
 				itemNo=0;
 				total=0;
+				SalesDetails.bill="";
 
 			}
 		});
@@ -254,13 +259,14 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 				setListViewSale(f);*/
 				Float tf=new Float(total);
 				com.sendPrice(tf.toString());
-				/*Product product;
-				List<Product> list=productCatalog.getAllProduct();
+				Product product;
 				Iterator it=list.iterator();
+				SalesDetails.bill="9 ";
 				while (it.hasNext()){
 					product=(Product) it.next();
+					SalesDetails.bill+=(product.getName()+","+product.getUnitPrice()+" ");
 					Log.e("Products",product.getName());
-				}*/
+				}
 
 
 			}
@@ -598,6 +604,11 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 			}
 
 		});
+
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
 
 	}
 
