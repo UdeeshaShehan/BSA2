@@ -2,6 +2,8 @@ package com.example.usid.mpos.technicalService;
 
 import android.util.Log;
 
+import com.example.usid.mpos.SecurityController;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -13,7 +15,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.paho.client.mqttv3.util.Strings;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.security.GeneralSecurityException;
 
 /**
  * Created by nifras on 2/19/17.
@@ -22,7 +26,7 @@ import java.net.ConnectException;
 public class MQTTConnection {
 
 
-    static String sAddress = "tcp://192.168.8.101:1883";
+    static String sAddress = "tcp://192.168.8.102:1883";
     static String sUserName = "admin";
     static String sPassword = "admin";
     static String sDestination = "credit";
@@ -48,9 +52,6 @@ public class MQTTConnection {
             MemoryPersistence persistance = new MemoryPersistence();
             client = new MqttClient(sAddress, clientId, persistance);
             if(!client.isConnected()) {
-
-
-
                 client.connect();
                 sub();
                 return true;
@@ -68,17 +69,24 @@ public class MQTTConnection {
     }
 
     public static boolean pub(String payload) {
-        MqttMessage message = new MqttMessage(payload.getBytes());
+
         try {
             if(!client.isConnected()){
                 connect();
             }
+            String encPayload = SecurityController.encrypt(payload);
+            MqttMessage message = new MqttMessage(encPayload.getBytes());
+
             client.publish(publishTopic, message);
 
             return true;
         } catch (MqttPersistenceException e) {
             e.printStackTrace();
         } catch (MqttException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return false;
@@ -91,6 +99,7 @@ public class MQTTConnection {
                 public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
                     byte [] payload = mqttMessage.getPayload();
                     String msg = new String(payload);
+                    msg = SecurityController.decrypt(msg);
 
                     Log.d("MQTT", msg);
                     try {
