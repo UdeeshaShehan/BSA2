@@ -66,6 +66,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 
 /**
  * UI for showing sale's record.
@@ -80,7 +83,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	private TextView totalBox;
 	private Spinner spinner;
 	private Button previousButton;
-	private Button send;
+	private Button nextButton;
 	private TextView currentBox;
 	private Calendar currentTime;
 	private DatePickerDialog datePicker;
@@ -96,6 +99,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	public static final int WEEKLY = 1;
 	public static final int MONTHLY = 2;
 	public static final int YEARLY = 3;
+	public static String results ="";
 	BroadcastReceiver receiverr;
 	Intent serviceIntentr;
 	// Message types sent from the BluetoothChatService Handler
@@ -132,7 +136,8 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 	public int counter = 0;
 
-	
+
+    MQTTConnection mqttConnection;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
@@ -219,10 +224,11 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 					AsyncTask at = new AsyncTask() {
 						ProgressDialog progress;
-						String results;
+
 						@Override
 						protected void onPreExecute() {
 							super.onPreExecute();
+
 							progress = new ProgressDialog(getActivity());
 							progress.setTitle("Credit Card");
 							progress.setMessage("Processing...");
@@ -237,28 +243,53 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 
 
-							HashMap<String, String> data = new HashMap<>();
-
-							data.put("name_on_card", "Mohamed Nifras");
-							data.put("amount", amount);
-							data.put("card_type", "visa");
-							data.put("card_number", "4032 0391 0542 2911");
-							data.put("expiry_month", "12");
-							data.put("expiry_year", "2021");
-							data.put("cvv", "123");
-							data.put("orderID", "12324");
+							//HashMap<String, String> data = new HashMap<>();
+							JSONObject data = new JSONObject();
 							try {
-								Connection connection = Connection.getInstance();
-								results = connection.post("payment_process.php", data);
+								data.put("name_on_card", "Mohamed Nifras");
+								data.put("amount", amount);
+								data.put("card_type", "visa");
+								data.put("card_number", "4032 0391 0542 2911");
+								data.put("expiry_month", "12");
+								data.put("expiry_year", "2021");
+								data.put("cvv", "123");
+								data.put("orderID", "12324");
+								data.put("corre-id", "123226651942");
+								try{
+									MQTTConnection.pub(data.toString());
+								}
+								catch (Exception e){
+									e.printStackTrace();
+								}
 
-								Log.e("Results", results);
-							} catch (URISyntaxException e) {
-								e.printStackTrace();
-							} catch (IOException e) {
+								while (MQTTConnection.response==null);
+
+								/*final Timer timer = new Timer();
+								timer.scheduleAtFixedRate(new TimerTask() {
+									@Override
+									public void run() {
+										while (MQTTConnection.response==null);
+										timer.cancel();
+
+									}
+								},200, 10000);*/
+
+
+							} catch (JSONException e) {
 								e.printStackTrace();
 							}
 
-							return null;
+
+
+							Log.e("Results", results);
+
+
+                            //Connection connection = Connection.getInstance();
+                            //results = connection.post("payment_process.php", data);
+
+
+
+                            return null;
 						}
 
 
@@ -269,7 +300,10 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								progress.dismiss();
 								JSONObject res = null;
 								try {
-									res = new JSONObject(results);
+
+
+									res = new JSONObject(MQTTConnection.response);
+									MQTTConnection.response =null;
 									if (res.getString("status").equals("1")) {
 										Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
 									} else {
@@ -330,9 +364,48 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			  }
 			}
 		};
+
+		connectMQTT();
 		return view;
 	}
 
+	private void connectMQTT(){
+
+		AsyncTask asyncTask = new AsyncTask() {
+			@Override
+			protected Object doInBackground(Object[] objects) {
+				try {
+					boolean isConnected = MQTTConnection.connect();
+					if(!isConnected){
+
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								AlertDialog.Builder quitDialog = new AlertDialog.Builder(getActivity());
+								quitDialog.setTitle("JPOSClient is not Connected!!!!");
+								quitDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+
+									}
+								});
+								quitDialog.show();
+							}
+						});
+
+					}
+				}
+				catch (Exception e){
+
+
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+		asyncTask.execute();
+
+	}
 	/**
 	 * Initiate this UI.
 	 */
@@ -622,7 +695,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			//After finishing the execution of background task data will be write the text view
 			//tvClientMsg.setText(s);
 			//Toast.makeText(getActivity().getBaseContext(), s, Toast.LENGTH_LONG).show();
-
+			int i=0;
 			/*if(s.substring(0,2).equals("no"))
 				cardNo.setText(s.substring(5,21));*/
 			//else
