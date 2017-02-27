@@ -122,6 +122,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 
+
 						}
 					});
 
@@ -159,7 +160,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								data.put("name_on_card", "Mohamed Nifras");
 								data.put("amount", amount);
 								data.put("card_type", "visa");
-								data.put("card_number", "4032 0391 0542 2911");
+								data.put("card_number", "4032039105422911");
 								data.put("expiry_month", "12");
 								data.put("expiry_year", "2021");
 								data.put("cvv", "123");
@@ -293,6 +294,8 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								quitDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
+
+										connectMQTT();
 
 									}
 								});
