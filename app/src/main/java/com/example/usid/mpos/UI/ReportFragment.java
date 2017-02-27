@@ -34,7 +34,7 @@ import com.example.usid.mpos.domain.DateTimeStrategy;
 import com.example.usid.mpos.domain.sales.Sale;
 import com.example.usid.mpos.domain.sales.SaleLedger;
 import com.example.usid.mpos.technicalService.BluetoothChatService;
-import com.example.usid.mpos.technicalService.Connection;
+import com.example.usid.mpos.technicalService.MQTTConnection;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
 import com.example.usid.mpos.technicalService.PriceCommunicator;
 import com.example.usid.mpos.technicalService.SalesDetails;
@@ -57,7 +57,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -66,9 +65,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 
 /**
  * UI for showing sale's record.
