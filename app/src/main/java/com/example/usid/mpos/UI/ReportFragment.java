@@ -198,8 +198,11 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		processPayment.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				String cvv = CVV.getText().toString();
+				final String cvv = CVV.getText().toString();
 				final String amount = Amount.getText().toString();
+				final String name = cardHolder.getText().toString();
+				final String PAN = cardNo.getText().toString().equals("")? "4032039105422911": cardNo.getText().toString();
+
 
 				if(CVV.length()<=0 || amount.length() <=0){
 					AlertDialog.Builder quitDialog = new AlertDialog.Builder(getActivity());
@@ -243,13 +246,13 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 							//HashMap<String, String> data = new HashMap<>();
 							JSONObject data = new JSONObject();
 							try {
-								data.put("name_on_card", "Mohamed Nifras");
+								data.put("name_on_card", name);
 								data.put("amount", amount);
 								data.put("card_type", "visa");
-								data.put("card_number", "4032039105422911");
+								data.put("card_number", PAN);
 								data.put("expiry_month", "12");
 								data.put("expiry_year", "2021");
-								data.put("cvv", "123");
+								data.put("cvv", cvv);
 								data.put("orderID", "12324");
 								data.put("corre-id", "123226651942");
 								try{
