@@ -323,7 +323,8 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 				count++;
 				setListViewSale(f);
 				Float tf=new Float(total);
-				com.sendPrice(tf.toString());*/
+				*/
+				com.sendPrice(Double.toString(total));
 				Map<String,String> product;
 				Iterator it=list.iterator();
 				List<String> list1 = new ArrayList<String>();

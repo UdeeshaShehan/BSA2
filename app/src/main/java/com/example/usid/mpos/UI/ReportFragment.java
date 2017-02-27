@@ -104,7 +104,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	public static final int MESSAGE_WRITE = 3;
 	public static final int MESSAGE_DEVICE_NAME = 4;
 	public static final int MESSAGE_TOAST = 5;
-
+	public static String PAN="";
 
 	// Key names received from the BluetoothChatService Handler
 	public static final String DEVICE_NAME = "device_name";
@@ -201,7 +201,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 				final String cvv = CVV.getText().toString();
 				final String amount = Amount.getText().toString();
 				final String name = cardHolder.getText().toString();
-				final String PAN = cardNo.getText().toString().equals("")? "4032039105422911": cardNo.getText().toString();
+				//final String PAN = cardNo.getText().toString().equals("")? "4032039105422911": cardNo.getText().toString();
 
 
 				if(CVV.length()<=0 || amount.length() <=0){
@@ -351,7 +351,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 						  String cardNu = details[0].substring(0, 4) + " **** **** ****";
 						  String eYear = details[2].substring(0, 2);
 						  String eMonth = details[2].substring(2);
-
+						  PAN = details[0];
 
 						  cardHolder.setText(details[1]);
 
@@ -681,7 +681,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 				String cardNu = details[0].substring(0,4)+ " **** **** ****";
 				String eYear = details[2].substring(0,2);
 				String eMonth = details[2].substring(2);
-
+				PAN = details[0];
 
 				cardHolder.setText(details[1]);
 
@@ -860,6 +860,7 @@ Button mSendButton;
 
 							expiryDate.setText(res[2].substring(0, 2) + "/" + res[2].substring(2, 4));
 							cardNo.setText(res[0].substring(6, 8) + "********");
+							PAN = res[0];
 							CVV.setText(res[3]);
 							Amount.setText(res[4]);
 							Log.d("expire", res[0]);
