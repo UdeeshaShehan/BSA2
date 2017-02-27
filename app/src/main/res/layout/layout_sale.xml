@@ -41,7 +41,7 @@
                 android:id="@+id/textViewcard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/card"
+                android:text="@string/card_holder"
                 android:textSize="20sp" />
 
             <TextView
@@ -165,5 +165,36 @@
             android:background="@drawable/btn_purple"
             android:text="@string/add" />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
+        <Button
+            android:id="@+id/enabling"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_red"
+            android:text="Enable" />
+
+        <Button
+            android:id="@+id/discoverable"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_blue"
+            android:text="Dscvr" />
+        <Button
+            android:id="@+id/device"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/btn_purple"
+            android:text="Connect" />
+
+    </LinearLayout>
 </LinearLayout>

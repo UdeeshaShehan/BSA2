@@ -65,6 +65,22 @@
     <string name="barcode_reader">Barcode reader</string>
     <string name="LogIn">Log In</string>
     <string name="environment_de">Environment</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+    <string name="discoverable">Discover</string>
+    <string name="connect">Connect</string>
+    <string name="scanning">scanning for devices...</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">No devices found</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="button_scan">Scan for devices</string>
+    <string name="not_connected">You are not connected to a device</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
+    <string name="title_connecting">connecting...</string>
+    <string name="title_connected_to">connected: </string>
+    <string name="title_not_connected">not connected</string>
 
 
     <string-array name="period">

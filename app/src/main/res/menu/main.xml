@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item
+  <!--  <item
         android:id="@+id/swipe"
         android:title="@string/swipe_card"/>
 
@@ -12,7 +12,7 @@
         android:title="@string/NFC"/>
     <item
         android:id="@+id/mobile"
-        android:title="@string/mobile_payment"/>
+        android:title="@string/mobile_payment"/>-->
     <item
         android:id="@+id/device"
         android:title="@string/device_detail"/>

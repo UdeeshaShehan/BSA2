@@ -54,7 +54,7 @@ public class SocketService extends Service {
         keepAlive=KeepAlive.getInstance();
         MyTimerTask myTask = new MyTimerTask();
         Timer myTimer = new Timer();
-        myTimer.schedule(myTask, 40000, 40000);
+        myTimer.schedule(myTask, 10000, 10000);
         intent1 = new Intent(BROADCAST_ACTION);
     }
     private final int SERVER_PORT = 8080;
@@ -422,24 +422,24 @@ public class SocketService extends Service {
             java.sql.Timestamp ts1;
             today = new java.util.Date();
             ts1 = new java.sql.Timestamp(today.getTime());
-            if((ts1.getTime()-b[0])>60000)
+            if((ts1.getTime()-b[0])>65000)
                 keepAlive.setDevice1(false);
-            else if(ts1.getTime()>b[0])
+            else if(ts1.getTime()>=b[0])
                 keepAlive.setDevice1(true);
 
-            if((ts1.getTime()-b[1])>60000)
+            if((ts1.getTime()-b[1])>65000)
                 keepAlive.setDevice2(false);
-            else if(ts1.getTime()>b[1])
+            else if(ts1.getTime()>=b[1])
                 keepAlive.setDevice2(true);
 
-            if((ts1.getTime()-b[2])>60000)
+            if((ts1.getTime()-b[2])>65000)
                 keepAlive.setDevice3(false);
-            else if(ts1.getTime()>b[2])
+            else if(ts1.getTime()>=b[2])
                 keepAlive.setDevice3(true);
 
-            if((ts1.getTime()-b[3])>60000)
+            if((ts1.getTime()-b[3])>65000)
                 keepAlive.setDevice4(false);
-            else if(ts1.getTime()>b[3])
+            else if(ts1.getTime()>=b[3])
                 keepAlive.setDevice4(true);
 
         }

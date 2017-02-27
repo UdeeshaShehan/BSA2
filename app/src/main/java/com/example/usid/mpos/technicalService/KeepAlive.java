@@ -1,5 +1,7 @@
 package com.example.usid.mpos.technicalService;
 
+import android.util.Log;
+
 import java.util.Observable;
 
 /**
@@ -15,10 +17,10 @@ public class KeepAlive extends Observable{
         return instance;
     }
     private KeepAlive() {
-        device1=true;
-        device2=true;
-        device3=true;
-        device4=true;
+        device1=false;
+        device2=false;
+        device3=false;
+        device4=false;
     }
 
     public boolean getDevice1() {
@@ -26,6 +28,7 @@ public class KeepAlive extends Observable{
     }
 
     public void setDevice1(boolean device1) {
+        Log.e("keepAlive","device1");
         this.device1 = device1;
         setChanged();
         notifyObservers();
@@ -36,6 +39,7 @@ public class KeepAlive extends Observable{
     }
 
     public void setDevice2(boolean device2) {
+        Log.e("keepAlive","device2");
         this.device2 = device2;
         setChanged();
         notifyObservers();
@@ -46,6 +50,7 @@ public class KeepAlive extends Observable{
     }
 
     public void setDevice3(boolean device3) {
+        Log.e("keepAlive","device3");
         this.device3 = device3;
         setChanged();
         notifyObservers();
@@ -56,6 +61,7 @@ public class KeepAlive extends Observable{
     }
 
     public void setDevice4(boolean device4) {
+        Log.e("keepAlive","device4");
         this.device4 = device4;
         setChanged();
         notifyObservers();

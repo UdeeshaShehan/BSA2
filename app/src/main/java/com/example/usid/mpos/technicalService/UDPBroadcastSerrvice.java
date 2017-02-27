@@ -4,12 +4,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.StreamCipher;
@@ -72,7 +70,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         }
 
         // schedule task
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 10000, NOTIFY_INTERVAL);
     }
     int indicator=0;
     @Override
@@ -83,7 +81,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         }else{
                 if(indicator==0) {
                     mTimer = new Timer();
-                    mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 100, NOTIFY_INTERVAL);
+                    mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 10000, NOTIFY_INTERVAL);
                     indicator=1;
                 }
         }
@@ -163,6 +161,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
     }
     byte[] receiveData = new byte[1024];
     String modifiedSentence;
+    long tst=0;
     private void runUdpClient()  {
         String udpMsg =getIP();
         DatagramSocket ds = null;
@@ -170,6 +169,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
         String t,t1,t2;
         Long tsLong = System.currentTimeMillis()/1000;
         String ts = tsLong.toString();
+        long tss=tsLong;
         byte[] key = new byte[32]; // 32 for 256 bit key or 16 for 128 bit
         byte[] iv = new byte[8]; // 64 bit IV required by ChaCha20
         int [] ikey={1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216};
@@ -197,8 +197,11 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
             Log.d("UDP Hex",getHex(t2.getBytes()));
            /* Toast.makeText(getApplicationContext(), "sending",
                     Toast.LENGTH_SHORT).show();*/
-            ds.send(dp);
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            if((tss-tst)>9) {
+                ds.send(dp);
+                tst=tss;
+            }
+           /* DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             ds.receive(receivePacket);
             modifiedSentence = new String(receivePacket.getData());
             Log.d("receive",modifiedSentence);
@@ -230,9 +233,9 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
                 }
                 dp = new DatagramPacket(t1.getBytes(), t1.length(), serverAddr, 55092);
                 ds.send(dp);
-            }
-            Toast.makeText(getApplicationContext(), modifiedSentence,
-                    Toast.LENGTH_SHORT).show();
+            }*/
+           /* Toast.makeText(getApplicationContext(), modifiedSentence,
+                    Toast.LENGTH_SHORT).show();*/
         } catch (SocketException e) {
             e.printStackTrace();
         }catch (UnknownHostException e) {
@@ -245,21 +248,6 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
             if (ds != null) {
                 ds.close();
             }
-        }
-    }
-    class UDPAsyncTask extends AsyncTask<String, Void, String> {
-        //Background task which serve for the client
-        @Override
-        protected String doInBackground(String... params) {
-            String result = null;
-            runUdpClient();
-            Log.d("dilushan","timer");
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
         }
     }
     class Task implements Runnable {
