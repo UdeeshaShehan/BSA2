@@ -860,7 +860,7 @@ Button mSendButton;
 
 							expiryDate.setText(res[2].substring(0, 2) + "/" + res[2].substring(2, 4));
 							cardNo.setText(res[0].substring(6, 8) + "********");
-							PAN = res[0];
+							PAN = res[0].substring(2);
 							CVV.setText(res[3]);
 							Amount.setText(res[4]);
 							Log.d("expire", res[0]);
