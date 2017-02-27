@@ -23,7 +23,7 @@ public class ShopEnvironment extends Activity {
         WebSettings webSetting = htmlWebView.getSettings();
         webSetting.setJavaScriptEnabled(true);
         webSetting.setDisplayZoomControls(true);
-        htmlWebView.loadUrl("http://www.dilushan.tk/fyp/stats.php");
+        htmlWebView.loadUrl("https://www.ddilushan.tk/fyp/stats.php");
     }
     private class CustomWebViewClient extends WebViewClient {
         @Override

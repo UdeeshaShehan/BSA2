@@ -1,7 +1,10 @@
 package com.example.usid.mpos.UI;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +16,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,34 +36,38 @@ import com.example.usid.mpos.domain.inventory.LineItem;
 import com.example.usid.mpos.domain.inventory.Product;
 import com.example.usid.mpos.domain.inventory.ProductCatalog;
 import com.example.usid.mpos.domain.sales.Register;
+import com.example.usid.mpos.technicalService.BluetoothChatService;
 import com.example.usid.mpos.technicalService.Communicator;
 import com.example.usid.mpos.technicalService.FragmentCommunicator;
 import com.example.usid.mpos.technicalService.NoDaoSetException;
 import com.example.usid.mpos.technicalService.SalesDetails;
 import com.example.usid.mpos.technicalService.SocketService;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import static android.content.ContentValues.TAG;
 import static android.content.Context.WIFI_SERVICE;
@@ -75,7 +84,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	private Register register;
 	private ArrayList<Map<String, String>> saleList;
 	private ListView saleListView;
-	private Button clearButton,confirmButton,addButton;
+	private Button clearButton,confirmButton,addButton,connecting;
 	private TextView totalPrice;
 	private Button endButton;
 	private UpdatableFragment reportFragment;
@@ -83,7 +92,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	private ArrayList<Map<String, String>> list;
     private ProductCatalog productCatalog;
 	ListView listView;
-	TextView totaltex,cardNo;
+	TextView totaltex,cardNo,quant;
 	private Thread thread;
 	BroadcastReceiver receiver;
 	Intent serviceIntent;
@@ -92,6 +101,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	private static int itemNo=0;
 	static int count=0;
 	Communicator com;
+	JSONObject obj;
 	/**
 	 * Construct a new SaleFragment.
 	 * @param
@@ -102,7 +112,9 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 		 hmap= new HashMap<String,Product>();
 
 	}
+	private Button enabling,discovering,send;
 	String barcode1[]=new String [2];
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		p1=new Product("RS232","6940570323939",500.00);
@@ -111,6 +123,14 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 		hmap.put("4792210100156",p2);
 		barcode1[0]="6940570323939";
 		barcode1[1]="4792210100156";
+
+
+		//try {
+
+		/*}catch(Exception e){
+			e.printStackTrace();
+		}*/
+		obj = new JSONObject();
 		try {
 			register = Register.getInstance();
 		} catch (NoDaoSetException e) {
@@ -184,15 +204,27 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	String saleBarcode;
 	Button bt;
 	Thread t;
+	int en = 0;
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		listView=(ListView)getActivity().findViewById(R.id.sale_List);
 		totaltex=(TextView)getActivity().findViewById(R.id.totalPrice);
+		quant=(TextView)getActivity().findViewById(R.id.quantity);
 		cardNo=(TextView)getActivity().findViewById(R.id.cardNo);
 		clearButton=(Button)getActivity().findViewById(R.id.clearButton);
 		confirmButton=(Button)getActivity().findViewById(R.id.endButton);
 		addButton=(Button)getActivity().findViewById(R.id.addButton);
+		enabling=(Button)getActivity().findViewById(R.id.enabling);
+		discovering=(Button)getActivity().findViewById(R.id.discoverable);
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		olist=new ArrayList<Map<String, String>>();
+		// If the adapter is null, then Bluetooth is not supported
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(getActivity().getBaseContext(), "Bluetooth is not available", Toast.LENGTH_LONG).show();
+			//finish();
+
+		}
 
 		//com=(Communicator) getActivity();
 		list=new ArrayList<Map<String,String>>();
@@ -202,6 +234,36 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 //        tvServerIP = (TextView) getActivity().findViewById(R.id.textViewServerIP);
 //        tvServerPort = (TextView) getActivity().findViewById(R.id.textViewServerPort);
 //        tvServerPort.setText(Integer.toString(SERVER_PORT));
+		connecting=(Button)getActivity().findViewById(R.id.device);
+		enabling.setOnClickListener(new View.OnClickListener() {
+
+
+			@Override
+			public void onClick(View view) {
+				if (en == 0) {
+					enable();
+					enabling.setText("Disable");
+					en = 1;
+				} else {
+					disable();
+					enabling.setText("Enable");
+					en = 0;
+				}
+			}
+		});
+		connecting.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				connect();
+			}
+		});
+		discovering.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				discoverable();
+			}
+		});
 		//Call method
 		//getDeviceIpAddress();
 		//New thread to listen to incoming connections
@@ -236,9 +298,12 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 
 			@Override
 			public void onClick(View view) {
-				new UDPAsyncTask().execute("IP");
+			//     	new UDPAsyncTask().execute("IP");
 				if(list!=null)
 					list.clear();
+				if(olist!=null)
+					olist.clear();
+				totaltex.setText("");
 				if(adapter!=null)
 					adapter.notifyDataSetChanged();
 				cardNo.setText("");
@@ -256,16 +321,24 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 					count=0;
                 String f=barcode1[count];
 				count++;
-				setListViewSale(f);*/
+				setListViewSale(f);
 				Float tf=new Float(total);
-				com.sendPrice(tf.toString());
-				Product product;
+				com.sendPrice(tf.toString());*/
+				Map<String,String> product;
 				Iterator it=list.iterator();
-				SalesDetails.bill="9 ";
+				List<String> list1 = new ArrayList<String>();
+				if(SalesDetails.bill.length()>2&&SalesDetails.bill.charAt(0)!='9')
+				SalesDetails.bill="9-";
 				while (it.hasNext()){
-					product=(Product) it.next();
-					SalesDetails.bill+=(product.getName()+","+product.getUnitPrice()+" ");
-					Log.e("Products",product.getName());
+					product=(Map<String,String>) it.next();
+					list1.add(product.get("name")+":"+product.get("unitPrice"));
+							//product.get("unitprice"));
+					//SalesDetails.bill+=(product.get("name")+","+product.get("unitprice")+" ");
+					//Log.e("Products",product.get("name"));
+				}
+				Set<String> uniqueSet = new HashSet<String>(list1);
+				for (String temp : uniqueSet) {
+					SalesDetails.bill+=temp + ": " + Collections.frequency(list1, temp)+"-";
 				}
 
 
@@ -280,10 +353,30 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 		});
 
 	}
+	ArrayList<Map<String, String>> olist;
 	ListViewAdapter2 adapter;
 	float total = 0;
+	double to;
+	public void updateListOrder(Product pd){
+		quant.setText("Quantity");
+		olist.add(pd.toMap());
+		to+=(pd.getUnitPrice()*pd.getAmount());
+		totaltex.setText(Double.toString(to));
+		Constants.THIRD_COLUMN="amount";
+		adapter = new ListViewAdapter2(getActivity(), olist);
+		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
+				int pos = position + 1;
+				Toast.makeText(getActivity().getBaseContext(), Integer.toString(pos) + " Clicked", Toast.LENGTH_SHORT).show();
+			}
 
+		});
+	}
 	public void setListViewSale(String s) {
+		quant.setText("Barcode");
+		Constants.THIRD_COLUMN="barcode";
 		Log.e("List","list");
 		Log.e("list",s);
 		saleBarcode = "1,2,3,4";
@@ -339,6 +432,8 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 		}
 	}
 	public void setListViewSaleNew(String s) {
+		quant.setText("Barcode");
+		Constants.THIRD_COLUMN="barcode";
 		saleBarcode = "1,2,3,4";
 		int in=0;
 		if (s != null){
@@ -430,7 +525,8 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	 * @param list
 	 */
 	private void showList(List<LineItem> list) {
-		
+		Constants.THIRD_COLUMN="barcode";
+		quant.setText("Barcode");
 		saleList = new ArrayList<Map<String, String>>();
 		for(LineItem line : list) {
 			saleList.add(line.toMap());
@@ -657,7 +753,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 		@Override
 		protected String doInBackground(String... params) {
 			String result = null;
-			runUdpClient();
+		//	runUdpClient();
 			return result;
 		}
 
@@ -705,7 +801,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 	}
 	byte[] receiveData = new byte[1024];
 	String modifiedSentence;
-	private void runUdpClient()  {
+/*	private void runUdpClient()  {
 		String udpMsg = getIP()+":"+55058;
 		DatagramSocket ds = null;
 		try {
@@ -735,6 +831,266 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 				ds.close();
 			}
 		}
+	}*/
+	public static final int DAILY = 0;
+	public static final int WEEKLY = 1;
+	public static final int MONTHLY = 2;
+	public static final int YEARLY = 3;
+	BroadcastReceiver receiverr;
+	Intent serviceIntentr;
+	// Message types sent from the BluetoothChatService Handler
+	public static final int MESSAGE_STATE_CHANGE = 1;
+	public static final int MESSAGE_READ = 2;
+	public static final int MESSAGE_WRITE = 3;
+	public static final int MESSAGE_DEVICE_NAME = 4;
+	public static final int MESSAGE_TOAST = 5;
+
+
+	// Key names received from the BluetoothChatService Handler
+	public static final String DEVICE_NAME = "device_name";
+	public static final String TOAST = "toast";
+
+	// Intent request codes
+	private static final int REQUEST_CONNECT_DEVICE = 1;
+	private static final int REQUEST_ENABLE_BT = 2;
+	private Button enable,disable,discover,connect;
+
+	// Name of the connected device
+	private String mConnectedDeviceName = null;
+	// String buffer for outgoing messages
+	private StringBuffer mOutStringBuffer;
+
+	// Local Bluetooth adapter
+	private BluetoothAdapter mBluetoothAdapter = null;
+
+	// Member object for the chat services
+	private BluetoothChatService mChatService = null;
+
+    /*private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
+    private MessageAdapter mAdapter;*/
+
+	public int counter = 0;
+	public void enable(){
+		if (!mBluetoothAdapter.isEnabled()) {
+			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+		} else {
+			if (mChatService == null) setupChat();
+		}
 	}
+	public void disable(){
+		mBluetoothAdapter.disable();
+		if (mChatService != null) mChatService.stop();
+		Toast.makeText(getActivity().getApplicationContext(),"Bluetooth turned off",
+				Toast.LENGTH_LONG).show();
+
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mChatService != null) mChatService.stop();
+	}
+	Button mSendButton;
+	private void setupChat() {
+		/*mOutEditText = (EditText) findViewById(R.id.amount_id);
+		pin= (EditText) findViewById(R.id.CVV_num);
+		mOutEditText.setOnEditorActionListener(mWriteListener);
+		*/
+		mSendButton = (Button) getActivity().findViewById(R.id.send);
+		mSendButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				String message = SalesDetails.bill;
+				sendMessage(message);
+			}
+		});
+
+		// Initialize the BluetoothChatService to perform bluetooth connections
+		mChatService = new BluetoothChatService(getActivity(), mHandler);
+
+		// Initialize the buffer for outgoing messages
+		mOutStringBuffer = new StringBuffer("");
+	}
+	private void ensureDiscoverable() {
+		if (mBluetoothAdapter.getScanMode() !=
+				BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+			startActivity(discoverableIntent);
+		}
+	}
+
+
+	private void sendMessage(String message) {
+
+		// Check that we're actually connected before trying anything
+		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+			Toast.makeText(getActivity().getBaseContext(), R.string.not_connected, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		// Check that there's actually something to send
+		if (message.length() > 0) {
+			// Get the message bytes and tell the BluetoothChatService to write
+			byte[] send = message.getBytes();
+			mChatService.write(send);
+			// Reset out string buffer to zero and clear the edit text field
+			mOutStringBuffer.setLength(0);
+			//mOutEditText.setText(mOutStringBuffer);
+		}
+	}
+	public void connect() {
+		if(mBluetoothAdapter.isEnabled()) {
+			Intent serverIntent = new Intent(getActivity().getApplicationContext(), DeviceListActivity.class);
+			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			Toast.makeText(getActivity().getBaseContext(), "devices",
+					Toast.LENGTH_SHORT).show();
+		}else {
+			Toast.makeText(getActivity().getBaseContext(), "please bluetooth enable",
+					Toast.LENGTH_SHORT).show();
+		}
+
+	}
+
+	public void discoverable() {
+		if(mBluetoothAdapter.isEnabled()) {
+			ensureDiscoverable();
+			Toast.makeText(getActivity().getBaseContext(), "discovering",
+					Toast.LENGTH_SHORT).show();
+		}else {
+			Toast.makeText(getActivity().getBaseContext(), "please bluetooth enable",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	// The Handler that gets information back from the BluetoothChatService
+	private final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case MESSAGE_WRITE:
+					byte[] writeBuf = (byte[]) msg.obj;
+					// construct a string from the buffer
+					String writeMessage = new String(writeBuf);
+                    /*mAdapter.notifyDataSetChanged();
+                    messageList.add(new androidRecyclerView.Message(counter++, writeMessage, "Me"));*/
+					break;
+				case MESSAGE_READ:
+					try {
+						byte[] readBuf = (byte[]) msg.obj;
+						// construct a string from the valid bytes in the buffer
+						String readMessage = new String(readBuf, 0, msg.arg1);
+						Toast.makeText(getActivity().getBaseContext(), readMessage, Toast.LENGTH_LONG).show();
+						Log.d("BLue",readMessage);
+						if(readMessage.length()>2&&readMessage.charAt(0)!='9') {
+							try {
+								StringTokenizer st = new StringTokenizer(readMessage, " ");
+								String res[] = new String[5];
+								int i = 0;
+								while (st.hasMoreTokens()) {
+									res[i] = st.nextToken();
+									i++;
+								}
+								st = new StringTokenizer(res[1], "^");
+								String res2[] = new String[5];
+								i = 0;
+								while (st.hasMoreTokens()) {
+									res2[i] = st.nextToken();
+									i++;
+								}
+								// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+                           /* cardHolder.setText(res2[1].substring(0, 15));
+                            Log.d("expire", res2[2]);
+
+                            expiryDate.setText(res2[2].substring(0, 2) + "/" + res2[2].substring(2, 4));
+                            cardNo.setText(res2[0].substring(2, 4) + "********");*/
+								Log.d("expire", res2[0]);
+							}catch (Exception e){
+								e.printStackTrace();
+							}
+                   /* mAdapter.notifyDataSetChanged();
+                    messageList.add(new androidRecyclerView.Message(counter++, readMessage, mConnectedDeviceName));*/
+						}else{
+							if(list!=null)
+								list.clear();
+							if(olist!=null)
+								olist.clear();
+							if(adapter!=null)
+								adapter.notifyDataSetChanged();
+
+							totaltex.setText("");
+							to=0;
+							total= (float) 0.0;
+							StringTokenizer st = new StringTokenizer(readMessage, "-");
+							ArrayList <String> res = new ArrayList<String>();
+							to=0;
+							int i = 0;
+							while (st.hasMoreTokens()) {
+								res.add(st.nextToken());
+
+							}
+							for(int j=1;j<res.size();j++) {
+								st = new StringTokenizer(res.get(j), ":");
+								String res2[] = new String[5];
+								int k = 0;
+								while (st.hasMoreTokens()) {
+									res2[k] = st.nextToken();
+									k++;
+								}
+								Product pd=new Product(res2[0],Double.parseDouble(res2[1]),Double.parseDouble(res2[2]));
+								updateListOrder(pd);
+                                /*Map<String, String> map = new HashMap<String, String>();
+                                map.put("name", res2[0]);
+                                map.put("barcode", res2[1]);
+                                map.put("unitPrice", res2[3]);*/
+                               /* SalesDetails salesDetails=new SalesDetails();
+                                salesDetails.addList(map);*/
+
+							}
+						}
+					}catch (Exception e){
+						e.printStackTrace();
+					}
+					break;
+				case MESSAGE_DEVICE_NAME:
+					// save the connected device's name
+					mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+					Toast.makeText(getActivity().getBaseContext(), "Connected to "
+							+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+					break;
+				case MESSAGE_TOAST:
+					Toast.makeText(getActivity().getBaseContext(), msg.getData().getString(TOAST),
+							Toast.LENGTH_SHORT).show();
+					break;
+			}
+		}
+	};
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+			case REQUEST_CONNECT_DEVICE:
+				// When DeviceListActivity returns with a device to connect
+				if (resultCode == Activity.RESULT_OK) {
+					// Get the device MAC address
+					String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+					// Get the BLuetoothDevice object
+					BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+
+					// Attempt to connect to the device
+					if(mChatService!=null)
+						mChatService.connect(device);
+				}
+				break;
+			case REQUEST_ENABLE_BT:
+				// When the request to enable Bluetooth returns
+				if (resultCode == Activity.RESULT_OK) {
+					// Bluetooth is now enabled, so set up a chat session
+					setupChat();
+				} else {
+					// User did not enable Bluetooth or an error occured
+					Toast.makeText(getActivity().getBaseContext(), R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+
+				}
+		}
+	}
+
 
 }

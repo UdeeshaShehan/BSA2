@@ -2,6 +2,7 @@ package com.example.usid.mpos.UI;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,6 +32,32 @@ public class DeviceStatus extends Activity implements Observer {
         image4 = (ImageView) findViewById(R.id.imageView4);
         k=KeepAlive.getInstance();
         k.addObserver(this);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if(k.getDevice1()){
+                    device1On();
+                }else{
+                    device1Off();
+                }
+                if(k.getDevice2()){
+                    device2On();
+                }else{
+                    device2Off();
+                }
+                if(k.getDevice3()){
+                    device3On();
+                }else{
+                    device3Off();
+                }
+                if(k.getDevice4()){
+                    device4On();
+                }else{
+                    device4Off();
+                }
+            }
+        });
       //  addListenerOnButton();
 
     }
@@ -115,19 +142,25 @@ public class DeviceStatus extends Activity implements Observer {
             public void run() {
 
                 if(k.getDevice1()){
+                    Log.e("keepAlive","device1on");
                     device1On();
                 }else{
+                    Log.e("keepAlive","device1off");
                     device1Off();
                 }
                 if(k.getDevice2()){
+                    Log.e("keepAlive","device2on");
                     device2On();
                 }else{
                     device2Off();
+                    Log.e("keepAlive","device2off");
                 }
                 if(k.getDevice3()){
                     device3On();
+                    Log.e("keepAlive","device3on");
                 }else{
                     device3Off();
+                    Log.e("keepAlive","device3off");
                 }
                 if(k.getDevice4()){
                     device4On();

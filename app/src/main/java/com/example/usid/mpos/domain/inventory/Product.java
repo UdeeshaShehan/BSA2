@@ -15,7 +15,22 @@ public class Product {
 	private String name;
 	private String barcode;
 	private double unitPrice;
-	
+	private double amount;
+
+	public double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public Product(String name, double unitPrice, double amount) {
+		this.name = name;
+		this.unitPrice = unitPrice;
+		this.amount = amount;
+	}
+
 	/**
 	 * Static value for UNDEFINED ID.
 	 */
@@ -113,6 +128,7 @@ public class Product {
 		map.put("name", name);
 		map.put("barcode", barcode);
 		map.put("unitPrice", unitPrice + "");
+		map.put("amount",amount+"");
 		return map;
 		
 	}

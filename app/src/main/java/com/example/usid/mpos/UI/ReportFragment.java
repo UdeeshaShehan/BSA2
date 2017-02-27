@@ -40,16 +40,26 @@ import com.example.usid.mpos.technicalService.PriceCommunicator;
 import com.example.usid.mpos.technicalService.SalesDetails;
 import com.example.usid.mpos.technicalService.SocketService;
 
+import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.StreamCipher;
+import org.bouncycastle.crypto.engines.ChaChaEngine;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -70,7 +80,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	private TextView totalBox;
 	private Spinner spinner;
 	private Button previousButton;
-	private Button nextButton;
+	private Button send;
 	private TextView currentBox;
 	private Calendar currentTime;
 	private DatePickerDialog datePicker;
@@ -142,7 +152,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		}
 		processPayment = (Button) view.findViewById(R.id.processPayment);
 		enable= (Button) view.findViewById(R.id.enable);
-		disable=(Button) view.findViewById(R.id.disable);
+	//	send=(Button) view.findViewById(R.id.send);
 		discover= (Button) view.findViewById(R.id.discover);
 		connect= (Button) view.findViewById(R.id.connect);
 		cardHolder = (EditText) view.findViewById(R.id.card_holder_name);
@@ -150,18 +160,27 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		expiryDate = (EditText) view.findViewById(R.id.expiry_date);
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
 		Amount = (EditText) view.findViewById(R.id.amount_id);
+
 		enable.setOnClickListener(new View.OnClickListener() {
+			int e=0;
 			@Override
 			public void onClick(View view) {
-               enable();
+				if(e==0) {
+					enable();
+					enable.setText("Disable");
+					e=1;
+				}else{
+					disable();
+					e=0;
+				}
 			}
 		});
-		disable.setOnClickListener(new View.OnClickListener() {
+		/*send.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				disable();
 			}
-		});
+		});*/
 		discover.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -283,29 +302,32 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		receiverr = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
+              try {
+				  String result = intent.getStringExtra("result");
+				  if (result.length() >= 20) {
+					  if (!result.substring(0, 2).equals("ba")) {
+						  String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
+						  track = track.replaceAll("no", "");
+						  track = track.replaceAll("\\,", "");
 
-				String result = intent.getStringExtra("result");
-				if(result.length()>=20) {
-					if (!result.substring(0, 2).equals("ba")) {
-						String track = result;// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
-						track = track.replaceAll("no", "");
-						track = track.replaceAll("\\,", "");
-
-						String[] details = track.split("\\^");
-						details[0] = details[0].replace("%B", "");
-						details[1] = details[1].replace("/", " ");
-						details[2] = details[2].substring(0, 4);
-						String cardNu = details[0].substring(0, 4) + " **** **** ****";
-						String eYear = details[2].substring(0, 2);
-						String eMonth = details[2].substring(2);
+						  String[] details = track.split("\\^");
+						  details[0] = details[0].replace("%B", "");
+						  details[1] = details[1].replace("/", " ");
+						  details[2] = details[2].substring(0, 4);
+						  String cardNu = details[0].substring(0, 4) + " **** **** ****";
+						  String eYear = details[2].substring(0, 2);
+						  String eMonth = details[2].substring(2);
 
 
-						cardHolder.setText(details[1]);
+						  cardHolder.setText(details[1]);
 
-						expiryDate.setText(eMonth + "/" + eYear);
-						cardNo.setText(cardNu);
-					}
-				}
+						  expiryDate.setText(eMonth + "/" + eYear);
+						  cardNo.setText(cardNu);
+					  }
+				  }
+			  }catch (Exception e){
+				  e.printStackTrace();
+			  }
 			}
 		};
 		return view;
@@ -639,6 +661,9 @@ Button mSendButton;
 			public void onClick(View v) {
 				String message = SalesDetails.bill;
 				sendMessage(message);
+				Toast.makeText(getActivity().getBaseContext(), message,
+						Toast.LENGTH_SHORT).show();
+
 			}
 		});
 
@@ -715,28 +740,54 @@ Button mSendButton;
 						byte[] readBuf = (byte[]) msg.obj;
 						// construct a string from the valid bytes in the buffer
 						String readMessage = new String(readBuf, 0, msg.arg1);
+						Log.d("Blue",readMessage);
 						if(readMessage.charAt(0)!='9') {
-							StringTokenizer st = new StringTokenizer(readMessage, " ");
-							String res[] = new String[5];
+						/*	byte[] key = new byte[32]; // 32 for 256 bit key or 16 for 128 bit
+							byte[] iv = new byte[8]; // 64 bit IV required by ChaCha20
+							int [] ikey={1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216};
+							int [] iiv={101,102,103,104,105,106,107,108};
+                            *//*key=j[1].getBytes();
+                            iv=j[0].getBytes();*//*
+							//= is.toByteArray();
+							for(int i=0;i<32;i++)
+								key[i]=(byte) ikey[i];
+							for(int i=0;i<8;i++)
+								iv[i]=(byte) iiv[i];
+							try (InputStream isDec =new ByteArrayInputStream(readBuf) ;
+								 ByteArrayOutputStream osDec = new ByteArrayOutputStream())
+							{
+								decChaCha(isDec, osDec, key, iv);
+
+								byte[] decoded = osDec.toByteArray();
+
+								readMessage = new String(decoded, StandardCharsets.UTF_8);
+								Log.d("Chacha",readMessage);
+								//System.out.println(test+" "+actual);
+								//Assert.assertEquals(test, actual);
+							}*/
+							StringTokenizer st = new StringTokenizer(readMessage, "^");
+							String res[] = new String[10];
 							int i = 0;
 							while (st.hasMoreTokens()) {
 								res[i] = st.nextToken();
 								i++;
 							}
-							st = new StringTokenizer(res[1], "^");
-							String res2[] = new String[5];
+							/*st = new StringTokenizer(res[1], "^");
+							String res2[] = new String[10];
 							i = 0;
 							while (st.hasMoreTokens()) {
 								res2[i] = st.nextToken();
 								i++;
-							}
+							}*/
 							// "no, %B4216890200522445^KARUNASINGHE/NALIN D^1710221190460000000000394000000?";
-							cardHolder.setText(res2[1].substring(0, 15));
-							Log.d("expire", res2[2]);
+							cardHolder.setText(res[1].substring(0));
+							Log.d("expire", res[2]);
 
-							expiryDate.setText(res2[2].substring(0, 2) + "/" + res2[2].substring(2, 4));
-							cardNo.setText(res2[0].substring(2, 4) + "********");
-							Log.d("expire", res2[0]);
+							expiryDate.setText(res[2].substring(0, 2) + "/" + res[2].substring(2, 4));
+							cardNo.setText(res[0].substring(6, 8) + "********");
+							CVV.setText(res[3]);
+							Amount.setText(res[4]);
+							Log.d("expire", res[0]);
                    /* mAdapter.notifyDataSetChanged();
                     messageList.add(new androidRecyclerView.Message(counter++, readMessage, mConnectedDeviceName));*/
 						}else{
@@ -775,8 +826,12 @@ Button mSendButton;
 							+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 					break;
 				case MESSAGE_TOAST:
-					Toast.makeText(getActivity().getBaseContext(), msg.getData().getString(TOAST),
-							Toast.LENGTH_SHORT).show();
+					try {
+						Toast.makeText(getActivity().getBaseContext(), msg.getData().getString(TOAST),
+								Toast.LENGTH_SHORT).show();
+					}catch(Exception  e){
+						e.printStackTrace();
+					}
 					break;
 			}
 		}
@@ -808,5 +863,66 @@ Button mSendButton;
 				}
 		}
 	}
+	public void doChaCha(boolean encrypt, InputStream is, OutputStream os,
+						 byte[] key, byte[] iv) throws IOException {
+		CipherParameters cp = new KeyParameter(key);
+		ParametersWithIV params = new ParametersWithIV(cp, iv);
+		StreamCipher engine = new ChaChaEngine();
+		engine.init(encrypt, params);
 
+
+		byte in[] = new byte[8192];
+		byte out[] = new byte[8192];
+		int len = 0;
+		while(-1 != (len = is.read(in))) {
+			len = engine.processBytes(in, 0 , len, out, 0);
+			os.write(out, 0, len);
+		}
+	}
+
+	public void encChaCha(InputStream is, OutputStream os, byte[] key,
+						  byte[] iv) throws IOException {
+		doChaCha(true, is, os, key, iv);
+	}
+
+	public void decChaCha(InputStream is, OutputStream os, byte[] key,
+						  byte[] iv) throws IOException {
+		doChaCha(false, is, os, key, iv);
+	}
+	public void chachaString() throws IOException, NoSuchAlgorithmException
+	{
+		String test = "Hello, World!";
+
+		try (InputStream isEnc = new ByteArrayInputStream(test.getBytes(StandardCharsets.UTF_8));
+			 ByteArrayOutputStream osEnc = new ByteArrayOutputStream())
+		{
+			//  SecureRandom sr = SecureRandom.getInstanceStrong();
+			String a[]={"7B4117E8", "C9B97794E1809E07BB271BF07C861003" };
+			byte[] key = new byte[32]; // 32 for 256 bit key or 16 for 128 bit
+			byte[] iv = new byte[8]; // 64 bit IV required by ChaCha20
+			key=a[1].getBytes();
+			iv=a[0].getBytes();
+			System.out.println(key+" "+iv);
+			//   sr.nextBytes(key);
+			//   sr.nextBytes(iv);
+			System.out.println(key.toString()+" "+iv.toString());
+
+			encChaCha(isEnc, osEnc, key, iv);
+
+			byte[] encoded = osEnc.toByteArray();
+			System.out.println(osEnc);
+
+			try (InputStream isDec = new ByteArrayInputStream(encoded);
+				 ByteArrayOutputStream osDec = new ByteArrayOutputStream())
+			{
+				decChaCha(isDec, osDec, key, iv);
+
+				byte[] decoded = osDec.toByteArray();
+
+				String actual = new String(decoded, StandardCharsets.UTF_8);
+				System.out.println(test+" "+actual);
+				//Assert.assertEquals(test, actual);
+			}
+		}
+	}
 }

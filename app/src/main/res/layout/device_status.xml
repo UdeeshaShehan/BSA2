@@ -78,7 +78,8 @@
         android:layout_height="match_parent"
         android:layout_weight="0.5"
         android:background="@drawable/btn_blue"
-        android:text="@string/chip_card_reader" />
+        android:text="@string/NFC_reader"
+        />
             </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -99,7 +100,8 @@
         android:layout_height="match_parent"
         android:layout_weight="0.5"
         android:background="@drawable/btn_blue"
-        android:text="@string/NFC_reader" />
+        android:text="@string/chip_card_reader"
+        />
         </LinearLayout>
 
    </LinearLayout>
