@@ -4,15 +4,19 @@ import android.util.Log;
 
 import com.example.usid.mpos.SecurityController;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.internal.ExceptionHelper;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.eclipse.paho.client.mqttv3.util.Strings;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.security.GeneralSecurityException;
 
 /**
@@ -22,8 +26,9 @@ import java.security.GeneralSecurityException;
 public class MQTTConnection {
 
 
-    static String sAddress = "tcp://192.168.8.104:1883";
-    static String sUserName = "admin";
+    public static String url = "192.168.8.101";
+    static String sAddress = "tcp://" + url +":1883";
+/*    static String sUserName = "admin";
     static String sPassword = "admin";
     static String sDestination = "credit";
 
@@ -32,19 +37,28 @@ public class MQTTConnection {
 
     final String serverUri = "tcp://192.168.8.101:1883";
 
-    static String clientId = "PosLankaClient";
-    final String subscriptionTopic = "/topic/credit";
-    static final String publishTopic = "credit";
+
+    final String subscriptionTopic = "/topic/credit";*/
+    public String corre_id = "sdfsdfdgdh3t34sw23";
+    public   String publishTopic = "credit";
+    public String clientId = "PosLankaMerchant";
     public static String response=null;
 
     private static MqttClient client;
+
+    public MQTTConnection(String topic) {
+        publishTopic = topic;
+        clientId = clientId+topic;
+    }
 
     public static MqttClient getClient() {
         return client;
     }
 
-    public static boolean connect() {
+    public  boolean connect() {
         try {
+            sAddress = "tcp://" + url+ ":1883";
+
             MemoryPersistence persistance = new MemoryPersistence();
             client = new MqttClient(sAddress, clientId, persistance);
             if(!client.isConnected()) {
@@ -64,7 +78,7 @@ public class MQTTConnection {
         return false;
     }
 
-    public static boolean pub(String payload) {
+    public  boolean pub(String payload) {
 
         try {
             if(!client.isConnected()){
@@ -87,7 +101,7 @@ public class MQTTConnection {
         }
         return false;
     }
-    public static void sub(){
+    public  void sub(){
         try {
 
             client.subscribe(publishTopic, new IMqttMessageListener(){
@@ -101,7 +115,7 @@ public class MQTTConnection {
                     try {
                         JSONObject jsonObject = new JSONObject(msg);
                         //!jsonObject.get("corre-id").equals("123226651942") ||
-                        if(jsonObject.has("status")){
+                        if(jsonObject.has("status") && jsonObject.get("corre-id").equals(corre_id)){
                             response = msg;
                         }
                     }
