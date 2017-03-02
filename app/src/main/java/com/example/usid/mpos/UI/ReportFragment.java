@@ -272,14 +272,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 										public void run() {
 											cardHolder.setText("");
 
-								long now = System.currentTimeMillis();
-								int runtime=10000;//in milliseconds
-								do
-								{
-									if(mqttConnectionCredit.response !=null)
-										break;
-									//enter your code here
-								}while (now+runtime<System.currentTimeMillis());
+
 
 								//while (MQTTConnection.response==null);
 											expiryDate.setText("");
@@ -288,7 +281,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								}catch(Exception e){
 									e.printStackTrace();
 								}*/
-								while (MQTTConnection.response==null);
+								//while (MQTTConnection.response==null);
 
 								/*final Timer timer = new Timer();
 
@@ -304,6 +297,14 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 								timer.purge();*/
 
+								long now = System.currentTimeMillis();
+								int runtime=10000;//in milliseconds
+								do
+								{
+									if(mqttConnectionCredit.response !=null)
+										break;
+									//enter your code here
+								}while (now+runtime<System.currentTimeMillis());
 
 
 							} catch (JSONException e) {
