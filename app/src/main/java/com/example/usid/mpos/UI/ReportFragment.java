@@ -136,7 +136,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
     private LinearLayoutManager mLayoutManager;
     private MessageAdapter mAdapter;*/
 
-
+	public int counter = 0;
 
 
     MQTTConnection mqttConnectionCredit;
@@ -423,13 +423,12 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		connectMQTT(mqttConnectionBill);
 		return view;
 	}
-
 	private void playDefaultNotificationSound() {
 		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 		Ringtone r = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notification);
 		r.play();
 	}
-	private void connectMQTT(final MQTTConnection mqttConnection){
+	private void connectMQTT(){
 
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override

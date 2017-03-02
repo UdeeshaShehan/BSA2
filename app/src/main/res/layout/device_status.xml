@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFFFF">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,12 +52,14 @@
                 android:id="@+id/btnChangeImage2"
                 style="@style/ButtonText"
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="match_parent"
+                android:layout_weight="9.17"
                 android:background="@drawable/btn_blue"
                 android:text="@string/swip_card_reader"
-                android:layout_weight="2.17" />
+                 />
         </LinearLayout>
         </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
