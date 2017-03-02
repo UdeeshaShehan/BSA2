@@ -147,15 +147,16 @@ public class MQTTConnection {
                                     double  unitPrice = Double.parseDouble(currLot.get("unitPrice").toString());
                                     String name =  currLot.get("name").toString();
                                     int id = Integer.parseInt(currLot.get("id").toString());
-                                    String barcode = currLot.get("barcode").toString();
-                                    int amount = Integer.parseInt(currLot.getString("amount").toString());
+                                    //String barcode = currLot.get("barcode").toString();
+                                    double amount = Double.parseDouble(currLot.getString("amount").toString());
 
 
-                                    Product product = new Product(id,name, unitPrice, barcode);
-                                    product.setAmount(amount);
+                                    Product product = new Product(name, unitPrice, amount);
+                                    //product.setAmount(amount);
                                     list.add(product);
                                 }
                                 catch (Exception e){
+                                    e.printStackTrace();
 
                                 }
 
