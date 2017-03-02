@@ -135,12 +135,13 @@ public class MainActivity extends FragmentActivity implements Communicator{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         res = getResources();
         setContentView(R.layout.activity_main);
         viewPager = (ViewPager) findViewById(R.id.pager);
         plist=new ArrayList<Product>();
         plist=getDataFromSharedPreferences();
-        super.onCreate(savedInstanceState);
+
         SDK_SUPPORTED = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         initiateActionBar();
         startService(new Intent(this, UDPBroadcastSerrvice.class));

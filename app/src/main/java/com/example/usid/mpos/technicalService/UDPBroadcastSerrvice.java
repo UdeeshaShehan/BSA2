@@ -161,7 +161,7 @@ public class UDPBroadcastSerrvice extends Service implements Observer{
     }
     byte[] receiveData = new byte[1024];
     String modifiedSentence;
-    long tst=0;
+    static long tst=0;
     private void runUdpClient()  {
         String udpMsg =getIP();
         DatagramSocket ds = null;

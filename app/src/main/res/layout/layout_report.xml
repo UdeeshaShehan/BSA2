@@ -137,7 +137,7 @@
         <TextView
             android:id="@+id/expiry"
             style="@style/ButtonText"
-            android:layout_width="wrap_content"
+            android:layout_width="141dp"
             android:layout_height="match_parent"
             android:background="@drawable/btn_blue"
             android:text="@string/Expiry" />
@@ -159,7 +159,7 @@
         <TextView
             android:id="@+id/CVV"
             style="@style/ButtonText"
-            android:layout_width="wrap_content"
+            android:layout_width="144dp"
             android:layout_height="match_parent"
             android:background="@drawable/btn_blue"
             android:text="@string/CVV" />
@@ -180,7 +180,7 @@
         <TextView
             android:id="@+id/card_holder"
             style="@style/ButtonText"
-            android:layout_width="wrap_content"
+            android:layout_width="145dp"
             android:layout_height="match_parent"
             android:background="@drawable/btn_blue"
             android:text="@string/card_holder" />
@@ -202,7 +202,7 @@
         <TextView
             android:id="@+id/amount"
             style="@style/ButtonText"
-            android:layout_width="wrap_content"
+            android:layout_width="143dp"
             android:layout_height="match_parent"
             android:background="@drawable/btn_blue"
             android:text="Amount" />

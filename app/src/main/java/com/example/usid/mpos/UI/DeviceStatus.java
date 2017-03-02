@@ -18,10 +18,9 @@ import java.util.Observer;
  */
 
 public class DeviceStatus extends Activity implements Observer {
-    Button button,button2, button3, button4;
     ImageView image,image2,image3,image4;
     KeepAlive k;
-
+    Button button,button2,button3,button4;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +29,10 @@ public class DeviceStatus extends Activity implements Observer {
         image2 = (ImageView) findViewById(R.id.imageView2);
         image3 = (ImageView) findViewById(R.id.imageView3);
         image4 = (ImageView) findViewById(R.id.imageView4);
+        button= (Button) findViewById(R.id.btnChangeImage);
+        button2= (Button) findViewById(R.id.btnChangeImage2);
+        button3= (Button) findViewById(R.id.btnChangeImage3);
+        button4= (Button) findViewById(R.id.btnChangeImage4);
         k=KeepAlive.getInstance();
         k.addObserver(this);
         runOnUiThread(new Runnable() {
@@ -62,28 +65,36 @@ public class DeviceStatus extends Activity implements Observer {
 
     }
     public void device1On(){
-        image.setImageResource(R.drawable.on);
+       // image.setImageResource(R.drawable.on);
+        button.setText("ON");
     }
     public void device1Off(){
-        image.setImageResource(R.drawable.off);
+        //image.setImageResource(R.drawable.off);
+        button.setText("OFF");
     }
     public void device2On(){
-        image2.setImageResource(R.drawable.on);
+        //image2.setImageResource(R.drawable.on);
+        button2.setText("ON");
     }
     public void device2Off(){
-        image2.setImageResource(R.drawable.off);
+        //image2.setImageResource(R.drawable.off);
+        button2.setText("OFF");
     }
     public void device3On(){
-        image3.setImageResource(R.drawable.on);
+        //image3.setImageResource(R.drawable.on);
+        button3.setText("ON");
     }
     public void device3Off(){
-        image3.setImageResource(R.drawable.off);
+        //image3.setImageResource(R.drawable.off);
+        button3.setText("OFF");
     }
     public void device4On(){
-        image4.setImageResource(R.drawable.on);
+        //image4.setImageResource(R.drawable.on);
+        button4.setText("ON");
     }
     public void device4Off(){
-        image4.setImageResource(R.drawable.off);
+        //image4.setImageResource(R.drawable.off);
+        button4.setText("OFF");
     }
 
     public void addListenerOnButton() {
@@ -141,7 +152,7 @@ public class DeviceStatus extends Activity implements Observer {
             @Override
             public void run() {
 
-                if(k.getDevice1()){
+               if(k.getDevice1()){
                     Log.e("keepAlive","device1on");
                     device1On();
                 }else{

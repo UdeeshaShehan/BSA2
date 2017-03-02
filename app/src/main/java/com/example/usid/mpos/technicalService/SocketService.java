@@ -168,8 +168,7 @@ public class SocketService extends Service {
 
                                 actual = new String(decoded, StandardCharsets.UTF_8);
                                 Log.d("Chacha",actual);
-                                //System.out.println(test+" "+actual);
-                                //Assert.assertEquals(test, actual);
+
                             }
                             //result="";
                       //      result = br.readLine();
@@ -424,22 +423,22 @@ public class SocketService extends Service {
             ts1 = new java.sql.Timestamp(today.getTime());
             if((ts1.getTime()-b[0])>65000)
                 keepAlive.setDevice1(false);
-            else if(ts1.getTime()>=b[0])
+            else
                 keepAlive.setDevice1(true);
 
             if((ts1.getTime()-b[1])>65000)
                 keepAlive.setDevice2(false);
-            else if(ts1.getTime()>=b[1])
+            else
                 keepAlive.setDevice2(true);
 
             if((ts1.getTime()-b[2])>65000)
                 keepAlive.setDevice3(false);
-            else if(ts1.getTime()>=b[2])
+            else                               //if(ts1.getTime()>=b[2])
                 keepAlive.setDevice3(true);
 
             if((ts1.getTime()-b[3])>65000)
                 keepAlive.setDevice4(false);
-            else if(ts1.getTime()>=b[3])
+            else //if(ts1.getTime()>=b[3])
                 keepAlive.setDevice4(true);
 
         }

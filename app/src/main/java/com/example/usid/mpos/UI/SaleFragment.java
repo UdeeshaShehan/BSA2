@@ -328,7 +328,7 @@ public class SaleFragment extends UpdatableFragment implements FragmentCommunica
 				Map<String,String> product;
 				Iterator it=list.iterator();
 				List<String> list1 = new ArrayList<String>();
-				if(SalesDetails.bill.length()>2&&SalesDetails.bill.charAt(0)!='9')
+				//if(SalesDetails.bill.length()>2&&SalesDetails.bill.charAt(0)!='9')
 				SalesDetails.bill="9-";
 				while (it.hasNext()){
 					product=(Map<String,String>) it.next();

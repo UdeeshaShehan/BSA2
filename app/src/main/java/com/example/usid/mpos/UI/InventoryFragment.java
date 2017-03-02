@@ -317,7 +317,7 @@ public class InventoryFragment extends UpdatableFragment {
 				/*Toast.makeText(getActivity().getBaseContext(),
 						SetServerString,
 						Toast.LENGTH_SHORT).show();*/
-				StringTokenizer tokenizer = new StringTokenizer(SetServerString, " \t\n\r\f\",.:;?![]'");
+				StringTokenizer tokenizer = new StringTokenizer(SetServerString, " \t\n\r\f\",.:;?![]'");//["11111111111, Soap, , Eli Lili and co, 5, 58.50, 15, 2017-02-28, 65"]
 				int count=0;
 				while (tokenizer.hasMoreElements()) {
 					productDetail[count]=tokenizer.nextElement().toString();
@@ -326,7 +326,7 @@ public class InventoryFragment extends UpdatableFragment {
 						break;
 				}
 				if(count>=3){
-					boolean success = productCatalog.addProduct(productDetail[0], productDetail[1], 50.0);
+					boolean success = productCatalog.addProduct(productDetail[1], productDetail[0], 50.0);
 					if (success) {
 						/*Toast.makeText(getActivity().getBaseContext(),
 								res.getString(R.string.success) ,

@@ -18,16 +18,17 @@
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/on"
-        android:gravity="center"/>
+        android:layout_height="211dp"
+        android:src="@drawable/device1"
+        android:gravity="center"
+        android:layout_weight="4.50" />
 
     <Button
         android:id="@+id/btnChangeImage"
         style="@style/ButtonText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.5"
+        android:layout_weight="9.17"
         android:background="@drawable/btn_blue"
         android:text="@string/barcode_reader" />
 
@@ -36,23 +37,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:weightSum="1">
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/on"
-        android:gravity="center"/>
+        android:layout_height="207dp"
+        android:src="@drawable/device2"
+        android:gravity="center"
+        android:layout_weight="1.50" />
 
-    <Button
-        android:id="@+id/btnChangeImage2"
-        style="@style/ButtonText"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:background="@drawable/btn_blue"
-        android:text="@string/swip_card_reader" />
-            </LinearLayout>
+            <Button
+                android:id="@+id/btnChangeImage2"
+                style="@style/ButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@drawable/btn_blue"
+                android:text="@string/swip_card_reader"
+                android:layout_weight="2.17" />
+        </LinearLayout>
         </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -67,41 +70,42 @@
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/on"
+        android:layout_height="189dp"
+        android:src="@drawable/device4"
         android:gravity="center"/>
 
-    <Button
-        android:id="@+id/btnChangeImage3"
-        style="@style/ButtonText"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:background="@drawable/btn_blue"
-        android:text="@string/NFC_reader"
-        />
-            </LinearLayout>
+            <Button
+                android:id="@+id/btnChangeImage3"
+                style="@style/ButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="@drawable/btn_blue"
+                android:text="@string/NFC_reader"
+                />
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="1">
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/on"
-        android:gravity="center"/>
+            android:layout_weight="1"
+            android:weightSum="1">
 
-    <Button
-        android:id="@+id/btnChangeImage4"
-        style="@style/ButtonText"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:background="@drawable/btn_blue"
-        android:text="@string/chip_card_reader"
-        />
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="wrap_content"
+                android:layout_height="191dp"
+                android:src="@drawable/device3"
+                android:gravity="center" />
+
+            <Button
+                 android:id="@+id/btnChangeImage4"
+                style="@style/ButtonText"
+                android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                android:background="@drawable/btn_blue"
+                android:text="@string/chip_card_reader"
+                android:layout_weight="2.42" />
         </LinearLayout>
 
    </LinearLayout>

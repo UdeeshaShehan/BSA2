@@ -4,19 +4,15 @@ import android.util.Log;
 
 import com.example.usid.mpos.SecurityController;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.internal.ExceptionHelper;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.eclipse.paho.client.mqttv3.util.Strings;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.security.GeneralSecurityException;
 
 /**
@@ -26,7 +22,7 @@ import java.security.GeneralSecurityException;
 public class MQTTConnection {
 
 
-    static String sAddress = "tcp://192.168.8.102:1883";
+    static String sAddress = "tcp://192.168.8.104:1883";
     static String sUserName = "admin";
     static String sPassword = "admin";
     static String sDestination = "credit";

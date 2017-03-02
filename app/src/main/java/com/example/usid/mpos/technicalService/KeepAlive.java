@@ -61,7 +61,7 @@ public class KeepAlive extends Observable{
     }
 
     public void setDevice4(boolean device4) {
-        Log.e("keepAlive","device4");
+        Log.e("keepAlive","device3");
         this.device4 = device4;
         setChanged();
         notifyObservers();
