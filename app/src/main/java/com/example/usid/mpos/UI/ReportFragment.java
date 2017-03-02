@@ -3,6 +3,7 @@ package com.example.usid.mpos.UI;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -35,6 +37,7 @@ import android.widget.Toast;
 import com.example.usid.mpos.MainActivity;
 import com.example.usid.mpos.R;
 import com.example.usid.mpos.domain.DateTimeStrategy;
+import com.example.usid.mpos.domain.inventory.Product;
 import com.example.usid.mpos.domain.sales.Sale;
 import com.example.usid.mpos.domain.sales.SaleLedger;
 import com.example.usid.mpos.technicalService.BluetoothChatService;
@@ -69,8 +72,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * UI for showing sale's record.
@@ -169,8 +170,8 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		expiryDate = (EditText) view.findViewById(R.id.expiry_date);
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
 		Amount = (EditText) view.findViewById(R.id.amount_id);
-		mqttConnectionCredit = new MQTTConnection("credit");
-		mqttConnectionBill = new MQTTConnection("bill");
+		mqttConnectionCredit = new MQTTConnection("credit", this);
+		mqttConnectionBill = new MQTTConnection("bill", this);
 		enable.setOnClickListener(new View.OnClickListener() {
 			int e=0;
 			@Override
@@ -487,6 +488,44 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	/**
 	 * Initiate this UI.
 	 */
+
+	public void showBilltoMerchandiser(final ArrayList<Product> arrayList, double total){
+		Log.d("ShowBIll","Test Pass");
+
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final Dialog dialog1 = new Dialog(getActivity());
+					dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
+					dialog1.setContentView(R.layout.notification);
+
+					ListView listView = (ListView)dialog1.findViewById(R.id.list_bill_item);
+					final ListViewAdapter3 adapter = new ListViewAdapter3(getActivity(), arrayList);
+					listView.setAdapter(adapter);
+
+					Button ok = (Button) dialog1.findViewById(R.id.ok);
+
+
+					ok.setOnClickListener(new View.OnClickListener()
+					{
+						@Override
+						public void onClick(View v)
+						{
+							dialog1.hide();
+							arrayList.clear();
+						}
+					});
+
+					dialog1.show();
+				}
+				catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+		});
+
+	}
 	private void initUI() {
 	/*	currentTime = Calendar.getInstance();
 		datePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {

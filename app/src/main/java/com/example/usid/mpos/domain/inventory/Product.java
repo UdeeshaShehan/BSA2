@@ -50,7 +50,13 @@ public class Product {
 		this.barcode = barcode;
 		this.unitPrice = salePrice;
 	}
-	
+
+	public Product(int id, String name, double unitPrice, String barcode) {
+		this.id = id;
+		this.name = name;
+		this.unitPrice = unitPrice;
+		this.barcode = barcode;
+	}
 	/**
 	 * Constructs a new Product.
 	 * @param name name of this product.

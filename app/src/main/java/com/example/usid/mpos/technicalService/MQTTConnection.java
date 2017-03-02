@@ -1,8 +1,12 @@
 package com.example.usid.mpos.technicalService;
 
+import android.app.Activity;
+import android.app.FragmentManager;
 import android.util.Log;
 
 import com.example.usid.mpos.SecurityController;
+import com.example.usid.mpos.UI.ReportFragment;
+import com.example.usid.mpos.domain.inventory.Product;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
@@ -13,11 +17,13 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.internal.ExceptionHelper;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.paho.client.mqttv3.util.Strings;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 
 /**
  * Created by nifras on 2/19/17.
@@ -28,6 +34,7 @@ public class MQTTConnection {
 
     public static String url = "192.168.8.101";
     static String sAddress = "tcp://" + url +":1883";
+    ArrayList<Product> list;
 /*    static String sUserName = "admin";
     static String sPassword = "admin";
     static String sDestination = "credit";
@@ -45,10 +52,14 @@ public class MQTTConnection {
     public static String response=null;
 
     private static MqttClient client;
+    ReportFragment activity;
 
-    public MQTTConnection(String topic) {
+    public MQTTConnection(String topic, ReportFragment activity) {
         publishTopic = topic;
         clientId = clientId+topic;
+        list = new ArrayList<>();
+        this.activity = activity;
+
     }
 
     public static MqttClient getClient() {
@@ -117,6 +128,41 @@ public class MQTTConnection {
                         //!jsonObject.get("corre-id").equals("123226651942") ||
                         if(jsonObject.has("status") && jsonObject.get("corre-id").equals(corre_id)){
                             response = msg;
+                        }
+
+
+                        else if (jsonObject.has("total") && jsonObject.has("items")){
+                            double total = Double.parseDouble(jsonObject.get("total").toString());
+                            JSONArray jsonarray = jsonObject.getJSONArray("items");
+                            JSONObject bill = new JSONObject();
+
+//                            bill.put("items", jsonarray);
+//                            bill.put("total", total);
+                            for(int i=0;i<jsonarray.length();i++)
+                            {
+
+
+                                try {
+                                    JSONObject currLot = jsonarray.getJSONObject(i);
+                                    double  unitPrice = Double.parseDouble(currLot.get("unitPrice").toString());
+                                    String name =  currLot.get("name").toString();
+                                    int id = Integer.parseInt(currLot.get("id").toString());
+                                    String barcode = currLot.get("barcode").toString();
+                                    int amount = Integer.parseInt(currLot.getString("amount").toString());
+
+
+                                    Product product = new Product(id,name, unitPrice, barcode);
+                                    product.setAmount(amount);
+                                    list.add(product);
+                                }
+                                catch (Exception e){
+
+                                }
+
+
+                            }
+                            activity.showBilltoMerchandiser(list, total);
+
                         }
                     }
                     catch (Exception e){

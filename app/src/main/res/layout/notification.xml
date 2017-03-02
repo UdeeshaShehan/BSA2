@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    >
+    <ListView
+        android:id="@+id/list_bill_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></ListView>
+    <Button
+        android:id="@+id/ok"
+        android:layout_width="20dp"
+        style="@style/ButtonText"
+        android:background="@drawable/btn_green"
+        android:layout_height="20dp"
+        android:ems="8"
+        android:text="OK"
+        android:gravity="center"
+        />
+
+</LinearLayout>
