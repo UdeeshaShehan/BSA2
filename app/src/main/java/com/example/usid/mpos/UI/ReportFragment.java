@@ -11,6 +11,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -380,6 +383,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 						  expiryDate.setText(eMonth + "/" + eYear);
 						  cardNo.setText(cardNu);
+						  playDefaultNotificationSound();
 					  }
 				  }
 			  }catch (Exception e){
@@ -391,7 +395,11 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		connectMQTT();
 		return view;
 	}
-
+	private void playDefaultNotificationSound() {
+		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		Ringtone r = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notification);
+		r.play();
+	}
 	private void connectMQTT(){
 
 		AsyncTask asyncTask = new AsyncTask() {
