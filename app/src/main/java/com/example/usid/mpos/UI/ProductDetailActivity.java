@@ -292,28 +292,33 @@ public class ProductDetailActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				if (quantityBox.getText().toString().equals("") || costBox.getText().toString().equals("")) {
-					Toast.makeText(ProductDetailActivity.this,
-							res.getString(R.string.please_input_all), Toast.LENGTH_SHORT)
-							.show();
-				} else {
-					boolean success = stock.addProductLot(
-							DateTimeStrategy.getCurrentTime(), 
-							Integer.parseInt(quantityBox.getText().toString()),
-							product, 
-							Double.parseDouble(costBox.getText().toString()));
-
-					if (success) {
-						Toast.makeText(ProductDetailActivity.this, res.getString(R.string.success), Toast.LENGTH_SHORT).show();
-						costBox.setText("");
-						quantityBox.setText("");
-						onResume();
-						alert.dismiss();
-						
-						
+				try {
+					if (quantityBox.getText().toString().equals("") || costBox.getText().toString().equals("")) {
+						Toast.makeText(ProductDetailActivity.this,
+								res.getString(R.string.please_input_all), Toast.LENGTH_SHORT)
+								.show();
 					} else {
-						Toast.makeText(ProductDetailActivity.this, res.getString(R.string.fail) , Toast.LENGTH_SHORT).show();
+
+						boolean success = stock.addProductLot(
+								DateTimeStrategy.getCurrentTime(),
+								Integer.parseInt(quantityBox.getText().toString()),
+								product,
+								Double.parseDouble(costBox.getText().toString()));
+
+						if (success) {
+							Toast.makeText(ProductDetailActivity.this, res.getString(R.string.success), Toast.LENGTH_SHORT).show();
+							costBox.setText("");
+							quantityBox.setText("");
+							onResume();
+							alert.dismiss();
+
+
+						} else {
+							Toast.makeText(ProductDetailActivity.this, res.getString(R.string.fail), Toast.LENGTH_SHORT).show();
+						}
 					}
+				}catch (Exception e){
+					e.printStackTrace();
 				}
 				
 			}

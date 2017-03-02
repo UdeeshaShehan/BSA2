@@ -167,7 +167,6 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
 		Amount = (EditText) view.findViewById(R.id.amount_id);
 
-		mqttConnectionCredit = new MQTTConnection("credit");
 		enable.setOnClickListener(new View.OnClickListener() {
 			int e=0;
 			@Override
@@ -252,7 +251,6 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 							//HashMap<String, String> data = new HashMap<>();
 							JSONObject data = new JSONObject();
 							try {
-								PAN = "4032039105422911";
 								data.put("name_on_card", name);
 								data.put("amount", amount);
 								data.put("card_type", "visa");
@@ -268,6 +266,11 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								catch (Exception e){
 									e.printStackTrace();
 								}
+							/*	try {
+									runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											cardHolder.setText("");
 
 								long now = System.currentTimeMillis();
 								int runtime=10000;//in milliseconds
@@ -279,6 +282,13 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								}while (now+runtime<System.currentTimeMillis());
 
 								//while (MQTTConnection.response==null);
+											expiryDate.setText("");
+											cardNo.setText("");
+										}});
+								}catch(Exception e){
+									e.printStackTrace();
+								}*/
+								while (MQTTConnection.response==null);
 
 								/*final Timer timer = new Timer();
 
@@ -327,6 +337,11 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 									mqttConnectionCredit.response =null;
 									if (res.getString("status").equals("1")) {
 										Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+										cardHolder.setText("");
+										CVV.setText("");
+										expiryDate.setText("");
+										cardNo.setText("");
+										Amount.setText("");
 									} else {
 										Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
 
@@ -377,6 +392,13 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 						  String cardNu = details[0].substring(0, 4) + " **** **** ****";
 						  String eYear = details[2].substring(0, 2);
 						  String eMonth = details[2].substring(2);
+						  /*StringTokenizer st = new StringTokenizer(track, "^");
+						  String res[] = new String[10];
+						  int i = 0;
+						  while (st.hasMoreTokens()) {
+							  res[i] = st.nextToken();
+							  i++;
+						  }*/
 						  PAN = details[0];
 
 						  cardHolder.setText(details[1]);
