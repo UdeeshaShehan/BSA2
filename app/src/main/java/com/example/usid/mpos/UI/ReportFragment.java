@@ -136,7 +136,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
     private LinearLayoutManager mLayoutManager;
     private MessageAdapter mAdapter;*/
 
-	public int counter = 0;
+
 
 
     MQTTConnection mqttConnectionCredit;
