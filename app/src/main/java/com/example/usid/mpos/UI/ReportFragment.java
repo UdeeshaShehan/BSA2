@@ -428,7 +428,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		Ringtone r = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notification);
 		r.play();
 	}
-	private void connectMQTT(){
+	private void connectMQTT(final MQTTConnection mqttConnection){
 
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
