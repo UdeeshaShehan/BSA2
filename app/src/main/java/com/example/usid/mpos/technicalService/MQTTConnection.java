@@ -26,7 +26,7 @@ import java.security.GeneralSecurityException;
 public class MQTTConnection {
 
 
-    public static String url = "192.168.8.102";
+    public static String url = "192.168.8.101";
     static String sAddress = "tcp://" + url +":1883";
 /*    static String sUserName = "admin";
     static String sPassword = "admin";
@@ -39,9 +39,9 @@ public class MQTTConnection {
 
 
     final String subscriptionTopic = "/topic/credit";*/
-
+    public String corre_id = "sdfsdfdgdh3t34sw23";
     public   String publishTopic = "credit";
-    public String clientId = "PosLankaClient";
+    public String clientId = "PosLankaMerchant";
     public static String response=null;
 
     private static MqttClient client;
@@ -115,7 +115,7 @@ public class MQTTConnection {
                     try {
                         JSONObject jsonObject = new JSONObject(msg);
                         //!jsonObject.get("corre-id").equals("123226651942") ||
-                        if(jsonObject.has("status")){
+                        if(jsonObject.has("status") && jsonObject.get("corre-id").equals(corre_id)){
                             response = msg;
                         }
                     }

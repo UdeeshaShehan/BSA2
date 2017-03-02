@@ -166,7 +166,8 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		expiryDate = (EditText) view.findViewById(R.id.expiry_date);
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
 		Amount = (EditText) view.findViewById(R.id.amount_id);
-
+		mqttConnectionCredit = new MQTTConnection("credit");
+		mqttConnectionBill = new MQTTConnection("bill");
 		enable.setOnClickListener(new View.OnClickListener() {
 			int e=0;
 			@Override
@@ -259,7 +260,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								data.put("expiry_year", "2021");
 								data.put("cvv", cvv);
 								data.put("orderID", "12324");
-								data.put("corre-id", "123226651942");
+								data.put("corre-id", mqttConnectionCredit.corre_id);
 								try{
 									mqttConnectionCredit.pub(data.toString());
 								}
@@ -414,17 +415,18 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			}
 		};
 
-		connectMQTT();
+		connectMQTT(mqttConnectionCredit);
+		connectMQTT(mqttConnectionBill);
 		return view;
 	}
 
-	private void connectMQTT(){
+	private void connectMQTT(final MQTTConnection mqttConnection){
 
 		AsyncTask asyncTask = new AsyncTask() {
 			@Override
 			protected Object doInBackground(Object[] objects) {
 				try {
-					boolean isConnected = mqttConnectionCredit.connect();
+					boolean isConnected = mqttConnection.connect();
 					if(!isConnected){
 
 						getActivity().runOnUiThread(new Runnable() {
@@ -435,17 +437,21 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								final EditText input = new EditText(getActivity());
 								// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
 								input.setInputType(InputType.TYPE_CLASS_TEXT);
+								input.setText(mqttConnection.url);
 								tryDialog.setView(input);
+
 								tryDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 										String server = input.getText().toString();
 										if(!server.trim().equals("")){
-											mqttConnectionCredit.url = server;
+											mqttConnection.url = server;
 
 										}
 										try {
-											connectMQTT();
+											connectMQTT(mqttConnection);
+
+
 										}
 										catch (Exception e){
 
