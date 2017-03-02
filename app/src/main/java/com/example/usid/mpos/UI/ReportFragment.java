@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,6 +66,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * UI for showing sale's record.
@@ -133,7 +136,9 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 	public int counter = 0;
 
 
-    MQTTConnection mqttConnection;
+    MQTTConnection mqttConnectionCredit;
+	MQTTConnection mqttConnectionBill;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
@@ -162,6 +167,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 		cardNo = (EditText) view.findViewById(R.id.Card_number);
 		Amount = (EditText) view.findViewById(R.id.amount_id);
 
+		mqttConnectionCredit = new MQTTConnection("credit");
 		enable.setOnClickListener(new View.OnClickListener() {
 			int e=0;
 			@Override
@@ -246,6 +252,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 							//HashMap<String, String> data = new HashMap<>();
 							JSONObject data = new JSONObject();
 							try {
+								PAN = "4032039105422911";
 								data.put("name_on_card", name);
 								data.put("amount", amount);
 								data.put("card_type", "visa");
@@ -256,15 +263,26 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								data.put("orderID", "12324");
 								data.put("corre-id", "123226651942");
 								try{
-									MQTTConnection.pub(data.toString());
+									mqttConnectionCredit.pub(data.toString());
 								}
 								catch (Exception e){
 									e.printStackTrace();
 								}
 
-								while (MQTTConnection.response==null);
+								long now = System.currentTimeMillis();
+								int runtime=10000;//in milliseconds
+								do
+								{
+									if(mqttConnectionCredit.response !=null)
+										break;
+									//enter your code here
+								}while (now+runtime<System.currentTimeMillis());
+
+								//while (MQTTConnection.response==null);
 
 								/*final Timer timer = new Timer();
+
+
 								timer.scheduleAtFixedRate(new TimerTask() {
 									@Override
 									public void run() {
@@ -272,7 +290,10 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 										timer.cancel();
 
 									}
-								},200, 10000);*/
+								},10000, 10000);
+
+								timer.purge();*/
+
 
 
 							} catch (JSONException e) {
@@ -302,8 +323,8 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 								try {
 
 
-									res = new JSONObject(MQTTConnection.response);
-									MQTTConnection.response =null;
+									res = new JSONObject(mqttConnectionCredit.response);
+									mqttConnectionCredit.response =null;
 									if (res.getString("status").equals("1")) {
 										Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
 									} else {
@@ -311,9 +332,14 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 
 									}
 								} catch (JSONException e) {
+									Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+									e.printStackTrace();
+								} catch (Exception e){
+									Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
 									e.printStackTrace();
 								}
 							}catch (Exception e){
+
 								e.printStackTrace();
 							}
 
@@ -375,23 +401,36 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 			@Override
 			protected Object doInBackground(Object[] objects) {
 				try {
-					boolean isConnected = MQTTConnection.connect();
+					boolean isConnected = mqttConnectionCredit.connect();
 					if(!isConnected){
 
 						getActivity().runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								AlertDialog.Builder quitDialog = new AlertDialog.Builder(getActivity());
-								quitDialog.setTitle("JPOSClient is not Connected!!!!");
-								quitDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+								AlertDialog.Builder tryDialog = new AlertDialog.Builder(getActivity());
+								tryDialog.setTitle("JPOSClient is not Connected!!!!");
+								final EditText input = new EditText(getActivity());
+								// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+								input.setInputType(InputType.TYPE_CLASS_TEXT);
+								tryDialog.setView(input);
+								tryDialog.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
+										String server = input.getText().toString();
+										if(!server.trim().equals("")){
+											mqttConnectionCredit.url = server;
 
-										connectMQTT();
+										}
+										try {
+											connectMQTT();
+										}
+										catch (Exception e){
+
+										}
 
 									}
 								});
-								quitDialog.show();
+								tryDialog.show();
 							}
 						});
 

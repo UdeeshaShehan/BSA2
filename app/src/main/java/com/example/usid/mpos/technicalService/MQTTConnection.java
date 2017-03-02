@@ -26,8 +26,9 @@ import java.security.GeneralSecurityException;
 public class MQTTConnection {
 
 
-    static String sAddress = "tcp://192.168.8.102:1883";
-    static String sUserName = "admin";
+    public static String url = "192.168.8.102";
+    static String sAddress = "tcp://" + url +":1883";
+/*    static String sUserName = "admin";
     static String sPassword = "admin";
     static String sDestination = "credit";
 
@@ -36,19 +37,28 @@ public class MQTTConnection {
 
     final String serverUri = "tcp://192.168.8.101:1883";
 
-    static String clientId = "PosLankaClient";
-    final String subscriptionTopic = "/topic/credit";
-    static final String publishTopic = "credit";
+
+    final String subscriptionTopic = "/topic/credit";*/
+
+    public   String publishTopic = "credit";
+    public String clientId = "PosLankaClient";
     public static String response=null;
 
     private static MqttClient client;
+
+    public MQTTConnection(String topic) {
+        publishTopic = topic;
+        clientId = clientId+topic;
+    }
 
     public static MqttClient getClient() {
         return client;
     }
 
-    public static boolean connect() {
+    public  boolean connect() {
         try {
+            sAddress = "tcp://" + url+ ":1883";
+
             MemoryPersistence persistance = new MemoryPersistence();
             client = new MqttClient(sAddress, clientId, persistance);
             if(!client.isConnected()) {
@@ -68,7 +78,7 @@ public class MQTTConnection {
         return false;
     }
 
-    public static boolean pub(String payload) {
+    public  boolean pub(String payload) {
 
         try {
             if(!client.isConnected()){
@@ -91,7 +101,7 @@ public class MQTTConnection {
         }
         return false;
     }
-    public static void sub(){
+    public  void sub(){
         try {
 
             client.subscribe(publishTopic, new IMqttMessageListener(){
