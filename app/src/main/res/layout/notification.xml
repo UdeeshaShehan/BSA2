@@ -5,8 +5,39 @@
     android:layout_height="wrap_content"
 
     >
-    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bill Paid"
+        android:textSize="20dp"
+        android:paddingLeft="1dip"
+        android:id="@+id/billpaid"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:layout_below="@+id/billpaid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reference No"
+        android:paddingLeft="10dp"
+        android:id="@+id/refenrence"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/refenrenceNo"
+        android:text="2324"
+        android:paddingLeft="30dp"
+        android:layout_below="@id/billpaid"
+        android:layout_toRightOf="@id/refenrence"
+        />
+
+
+
+
     <ListView
+        android:layout_below="@+id/refenrence"
         android:id="@+id/list_bill_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"></ListView>

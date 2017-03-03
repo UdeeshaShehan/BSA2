@@ -499,11 +499,13 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 					final Dialog dialog1 = new Dialog(getActivity());
 					dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
 					dialog1.setContentView(R.layout.notification);
-
+					TextView referenceNo = (TextView) dialog1.findViewById(R.id.refenrenceNo);
 					ListView listView = (ListView)dialog1.findViewById(R.id.list_bill_item);
 					final ListViewAdapter3 adapter = new ListViewAdapter3(getActivity(), arrayList);
 					listView.setAdapter(adapter);
 
+					int reference = (int)Math.abs(Math.random()%100000);
+					referenceNo.setText(reference+"");
 					Button ok = (Button) dialog1.findViewById(R.id.ok);
 
 
