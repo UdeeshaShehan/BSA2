@@ -71,6 +71,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.SplittableRandom;
 import java.util.StringTokenizer;
 
 /**
@@ -504,7 +506,7 @@ public class ReportFragment extends UpdatableFragment implements PriceCommunicat
 					final ListViewAdapter3 adapter = new ListViewAdapter3(getActivity(), arrayList);
 					listView.setAdapter(adapter);
 
-					int reference = (int)Math.abs(Math.random()%100000);
+					long reference = (long)Math.abs(new Random().nextInt()%100000);
 					referenceNo.setText(reference+"");
 					Button ok = (Button) dialog1.findViewById(R.id.ok);
 
